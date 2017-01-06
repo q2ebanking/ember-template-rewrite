@@ -58,4 +58,11 @@ describe('convertBindAttr', function() {
     let output = '<h1 class="before {{if isActive "active"}}" ></h1>';
     assert.equal(convertBindAttr(input), output);
   });
+
+  it('combines multiple class bindings', function() {
+    let input = '<h1 class="before" {{bind-attr class="isActive:active"}}' +
+                                  ' {{bind-attr class="isDisabled:disabled"}}></h1>';
+    let output = '<h1 class="before {{if isActive "active"}} {{if isDisabled "disabled"}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
 });

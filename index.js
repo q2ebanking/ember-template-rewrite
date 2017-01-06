@@ -25,30 +25,32 @@ function classTernaryToAttribute(modifier, attributes) {
   let pair = modifier.hash.pairs[0];
   let [path, ...values] = pair.value.value.split(':');
   let classAttr = attributes.find(a => a.name === 'class');
-  let concat = builders.concat([
-      builders.mustache('if', [
-        builders.path(path),
-        ...values.map(v => builders.string(v))
-      ])
-    ]);
+  let mustache = builders.mustache('if', [
+    builders.path(path),
+    ...values.map(v => builders.string(v))
+  ]);
+  let concat;
+
   if (classAttr) {
-    let classCol = classAttr.loc.start.column;
-    let modifierCol = modifier.loc.start.column;
-    if (classCol < modifierCol) {
+    if (classAttr.value.type === 'ConcatStatement') {
+      concat = classAttr.value;
+    } else {
+      concat = builders.concat([classAttr.value]);
+    }
+    let classCol = (classAttr.loc && classAttr.loc.start.column) || 0;
+    let modifierCol = (modifier.loc && modifier.loc.start.column) || 0;
+    if (classCol > modifierCol) {
       concat.parts.unshift(builders.text(' '));
-      concat.parts.unshift(classAttr.value);
+      concat.parts.unshift(mustache);
     } else {
       concat.parts.push(builders.text(' '));
-      concat.parts.push(classAttr.value);
+      concat.parts.push(mustache);
     }
     classAttr.value = concat;
   } else {
-    classAttr = builders.attr('class', builders.concat([
-      builders.mustache('if', [
-        builders.path(path),
-        ...values.map(v => builders.string(v))
-      ])
-    ]));
+    concat = builders.concat([]);
+    concat.parts.push(mustache);
+    classAttr = builders.attr('class', concat);
     attributes.push(classAttr);
   }
 }
