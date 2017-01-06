@@ -24,12 +24,26 @@ function isClassTernary(modifier) {
 function classTernaryToAttribute(modifier, attributes) {
   let pair = modifier.hash.pairs[0];
   let [path, ...values] = pair.value.value.split(':');
-  attributes.push(builders.attr('class', builders.concat([
-    builders.mustache('if', [
-      builders.path(path),
-      ...values.map(v => builders.string(v))
-    ])
-  ])));
+  let classAttr = attributes.find(a => a.name === 'class');
+  let concat = builders.concat([
+      builders.mustache('if', [
+        builders.path(path),
+        ...values.map(v => builders.string(v))
+      ])
+    ]);
+  if (classAttr) {
+    concat.parts.push(builders.text(' '));
+    concat.parts.push(classAttr.value);
+    classAttr.value = concat;
+  } else {
+    classAttr = builders.attr('class', builders.concat([
+      builders.mustache('if', [
+        builders.path(path),
+        ...values.map(v => builders.string(v))
+      ])
+    ]));
+    attributes.push(classAttr);
+  }
 }
 
 function convertBindAttr(source) {
