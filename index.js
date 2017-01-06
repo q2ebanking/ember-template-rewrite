@@ -32,8 +32,15 @@ function classTernaryToAttribute(modifier, attributes) {
       ])
     ]);
   if (classAttr) {
-    concat.parts.push(builders.text(' '));
-    concat.parts.push(classAttr.value);
+    let classCol = classAttr.loc.start.column;
+    let modifierCol = modifier.loc.start.column;
+    if (classCol < modifierCol) {
+      concat.parts.unshift(builders.text(' '));
+      concat.parts.unshift(classAttr.value);
+    } else {
+      concat.parts.push(builders.text(' '));
+      concat.parts.push(classAttr.value);
+    }
     classAttr.value = concat;
   } else {
     classAttr = builders.attr('class', builders.concat([

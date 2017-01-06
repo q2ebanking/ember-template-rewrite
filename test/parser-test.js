@@ -52,4 +52,10 @@ describe('convertBindAttr', function() {
     let output = '<h1 class="{{if isActive "active"}} after" ></h1>';
     assert.equal(convertBindAttr(input), output);
   });
+
+  it('combines with existing class attribute before', function() {
+    let input = '<h1 class="before" {{bind-attr class="isActive:active"}}></h1>';
+    let output = '<h1 class="before {{if isActive "active"}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
 });
