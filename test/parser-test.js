@@ -1,8 +1,8 @@
 import assert from 'assert-diff';
-import { parse, compile } from '../';
+import { parse, print, convertBindAttr } from '../';
 
-function parseCompile(source) {
-  return compile(parse(source));
+function parsePrint(source) {
+  return print(parse(source));
 }
 
 describe('parse', function() {
@@ -12,9 +12,32 @@ describe('parse', function() {
   });
 });
 
-describe('compile', function() {
+describe('print', function() {
   it('preserves element text nodes', function() {
     let expected = '<div> </div>';
-    assert.equal(parseCompile(expected), expected);
+    assert.equal(parsePrint(expected), expected);
+  });
+
+  it('preserves element attributes', function() {
+    let expected = '<div foo="bar" baz="qux"></div>';
+    assert.equal(parsePrint(expected), expected);
+  });
+
+  it('preserves mustache params', function() {
+    let expected = '{{foo bar baz=qux}}';
+    assert.equal(parsePrint(expected), expected);
+  });
+
+  it('preserves mustaches in attributes', function() {
+    let expected = '<div class="a {{if foo "bar"}} b"></div>';
+    assert.equal(parsePrint(expected), expected);
+  });
+});
+
+describe('convertBindAttr', function() {
+  it('converts class ternary', function() {
+    let input = '<h1 {{bind-attr class="isActive:active:inactive"}}></h1>';
+    let output = '<h1 class="{{if isActive "active" "inactive"}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
   });
 });

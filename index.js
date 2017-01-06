@@ -1,39 +1,59 @@
-import { preprocess as _parse, Walker } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
+import {
+  preprocess as _parse,
+  print as _print,
+  Walker,
+  builders
+} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
 function parse(source) {
   return _parse(source);
 }
 
-function append(node) {
-  let source = [];
-  if (node.type === 'Program') {
-    for (let i = 0; i < node.body.length; i++) {
-      let el = node.body[i];
-      Array.prototype.push.apply(source, append(el));
-    }
-  }
-  if (node.type === 'ElementNode') {
-    source.push(`<${node.tag}>`)
-    for (let i = 0; i < node.children.length; i++) {
-      Array.prototype.push.apply(source, append(node.children[i]));
-    }
-    source.push(`</${node.tag}>`)
-  }
-  if (node.type === 'TextNode') {
-    source.push(node.chars);
-  }
-  return source;
+function print(ast) {
+  return _print(ast);
 }
 
-function compile(ast) {
+function isBindAttr(modifier) {
+  return modifier.path.original === 'bind-attr';
+}
+
+function isClassTernary(modifier) {
+  return modifier.hash.pairs[0].key === 'class';
+}
+
+function classTernaryToAttribute(modifier, attributes) {
+  let pair = modifier.hash.pairs[0];
+  let value = pair.value.value.split(':');
+  attributes.push(builders.attr('class', builders.concat([
+    builders.mustache('if', [
+      builders.path(value[0]),
+      builders.string(value[1]),
+      builders.string(value[2])
+    ])
+  ])));
+}
+
+function convertBindAttr(source) {
+  let ast = parse(source);
   let walker = new Walker(ast);
-  let source = [];
+
   walker.visit(ast, function(node) {
-    if (node.type === 'Program') {
-      Array.prototype.push.apply(source, append(node));
+    if (node.type === 'ElementNode') {
+      if (node.modifiers) {
+        for (let i = 0; i < node.modifiers.length; i++) {
+          let modifier = node.modifiers[i];
+          if (isBindAttr(modifier)) {
+            if (isClassTernary(modifier)) {
+              classTernaryToAttribute(modifier, node.attributes);
+            }
+            delete node.modifiers[i];
+          }
+        }
+      }
     }
   });
-  return source.join('');
+
+  return print(ast);
 }
 
-export { parse, compile };
+export { parse, print, convertBindAttr };
