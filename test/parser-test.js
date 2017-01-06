@@ -1,9 +1,20 @@
 import assert from 'assert-diff';
-import { parseAst } from '../';
+import { parse, compile } from '../';
 
-describe('parseAst', function() {
-  it('parses AST', function() {
-    let ast = parseAst('<div></div>');
+function parseCompile(source) {
+  return compile(parse(source));
+}
+
+describe('parse', function() {
+  it('parses source to AST', function() {
+    let ast = parse('<div> </div>');
     assert.equal(ast.type, 'Program');
+  });
+});
+
+describe('compile', function() {
+  it('preserves element text nodes', function() {
+    let expected = '<div> </div>';
+    assert.equal(parseCompile(expected), expected);
   });
 });
