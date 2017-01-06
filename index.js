@@ -23,12 +23,11 @@ function isClassTernary(modifier) {
 
 function classTernaryToAttribute(modifier, attributes) {
   let pair = modifier.hash.pairs[0];
-  let value = pair.value.value.split(':');
+  let [path, ...values] = pair.value.value.split(':');
   attributes.push(builders.attr('class', builders.concat([
     builders.mustache('if', [
-      builders.path(value[0]),
-      builders.string(value[1]),
-      builders.string(value[2])
+      builders.path(path),
+      ...values.map(v => builders.string(v))
     ])
   ])));
 }

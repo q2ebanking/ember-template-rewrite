@@ -40,4 +40,10 @@ describe('convertBindAttr', function() {
     let output = '<h1 class="{{if isActive "active" "inactive"}}" ></h1>';
     assert.equal(convertBindAttr(input), output);
   });
+
+  it('converts class if', function() {
+    let input = '<h1 {{bind-attr class="isActive:active"}}></h1>';
+    let output = '<h1 class="{{if isActive "active"}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
 });
