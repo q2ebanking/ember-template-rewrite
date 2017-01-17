@@ -4,6 +4,7 @@ import {
   Walker,
   builders
 } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
+import classStringParser from './lib/class-string-parser';
 
 function parse(source) {
   return _parse(source);
@@ -17,41 +18,43 @@ function isBindAttr(modifier) {
   return modifier.path.original === 'bind-attr';
 }
 
-function isClassTernary(modifier) {
+function isClassBinding(modifier) {
   return modifier.hash.pairs[0].key === 'class';
 }
 
-function classTernaryToAttribute(modifier, attributes) {
+function classBindingsToAttribute(modifier, attributes) {
   let pair = modifier.hash.pairs[0];
-  let [path, ...values] = pair.value.value.split(':');
-  let classAttr = attributes.find(a => a.name === 'class');
-  let mustache = builders.mustache('if', [
-    builders.path(path),
-    ...values.map(v => builders.string(v))
-  ]);
+  let classString = pair.value.value;
+  let existingClassAttr = attributes.find(a => a.name === 'class');
+  let nodes = classStringParser(classString, { spaces: true });
   let concat;
 
-  if (classAttr) {
-    if (classAttr.value.type === 'ConcatStatement') {
-      concat = classAttr.value;
+  if (existingClassAttr) {
+    if (existingClassAttr.value.type === 'ConcatStatement') {
+      concat = existingClassAttr.value;
     } else {
-      concat = builders.concat([classAttr.value]);
+      concat = builders.concat([existingClassAttr.value]);
     }
-    let classCol = (classAttr.loc && classAttr.loc.start.column) || 0;
+    let classCol = (existingClassAttr.loc && existingClassAttr.loc.start.column) || 0;
     let modifierCol = (modifier.loc && modifier.loc.start.column) || 0;
+    let func;
     if (classCol > modifierCol) {
-      concat.parts.unshift(builders.text(' '));
-      concat.parts.unshift(mustache);
+      func = Array.prototype.unshift;
     } else {
-      concat.parts.push(builders.text(' '));
-      concat.parts.push(mustache);
+      func = Array.prototype.push;
     }
-    classAttr.value = concat;
+    func.apply(concat.parts, [builders.text(' ')]);
+    func.apply(concat.parts, nodes);
+    existingClassAttr.value = concat;
   } else {
-    concat = builders.concat([]);
-    concat.parts.push(mustache);
-    classAttr = builders.attr('class', concat);
-    attributes.push(classAttr);
+    let newClassAttr;
+    if (nodes.length === 0) {
+      newClassAttr = builders.attr('class', nodes[0]);
+    } else {
+      concat = builders.concat(nodes);
+      newClassAttr = builders.attr('class', concat);
+    }
+    attributes.push(newClassAttr);
   }
 }
 
@@ -60,16 +63,12 @@ function convertBindAttr(source) {
   let walker = new Walker(ast);
 
   walker.visit(ast, function(node) {
-    if (node.type === 'ElementNode') {
-      if (node.modifiers) {
-        for (let i = 0; i < node.modifiers.length; i++) {
-          let modifier = node.modifiers[i];
-          if (isBindAttr(modifier)) {
-            if (isClassTernary(modifier)) {
-              classTernaryToAttribute(modifier, node.attributes);
-            }
-            delete node.modifiers[i];
-          }
+    if (node.type === 'ElementNode' && node.modifiers) {
+      for (let i = 0; i < node.modifiers.length; i++) {
+        let modifier = node.modifiers[i];
+        if (isBindAttr(modifier) && isClassBinding(modifier)) {
+          classBindingsToAttribute(modifier, node.attributes);
+          delete node.modifiers[i];
         }
       }
     }

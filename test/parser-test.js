@@ -35,9 +35,42 @@ describe('print', function() {
 });
 
 describe('convertBindAttr', function() {
+  it('converts class binding', function() {
+    let input = '<h1 {{bind-attr class="active"}}></h1>';
+    // TODO - (upstream) remove quotes, remove trailing space
+    let output = '<h1 class="{{active}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
+  it('converts multiple class bindings', function() {
+    let input = '<h1 {{bind-attr class="active  status"}}></h1>';
+    let output = '<h1 class="{{active}} {{status}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
   it('converts class ternary', function() {
     let input = '<h1 {{bind-attr class="isActive:active:inactive"}}></h1>';
     let output = '<h1 class="{{if isActive "active" "inactive"}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
+  it('converts class ternary with special chars', function() {
+    let input = '<h1 {{bind-attr class="model.isActive:is-active:is-inactive"}}></h1>';
+    let output = '<h1 class="{{if model.isActive "is-active" "is-inactive"}}" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
+  it('converts with static classes', function() {
+    let input = '<h1 {{bind-attr class=":static-before activeClass :static-after"}}></h1>';
+    let output = '<h1 class="static-before {{activeClass}} static-after" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
+  it('converts with static class ternary and binding', function() {
+    let input = '<h1 {{bind-attr class=":static-before' +
+                  ' isActive:active-class:inactive-class binding"}}></h1>';
+    let output = '<h1 class="static-before ' +
+      '{{if isActive "active-class" "inactive-class"}} {{binding}}" ></h1>';
     assert.equal(convertBindAttr(input), output);
   });
 
