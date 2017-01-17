@@ -5,6 +5,7 @@ import {
   builders
 } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import classStringParser from './lib/class-string-parser';
+import _ from 'underscore';
 
 function parse(source) {
   return _parse(source);
@@ -18,12 +19,11 @@ function isBindAttr(modifier) {
   return modifier.path.original === 'bind-attr';
 }
 
-function isClassBinding(modifier) {
-  return modifier.hash.pairs[0].key === 'class';
+function isClassBinding(pair) {
+  return pair.key === 'class';
 }
 
-function classBindingsToAttribute(modifier, attributes) {
-  let pair = modifier.hash.pairs[0];
+function classBindingsToAttribute(pair, attributes, modifiers) {
   let classString = pair.value.value;
   let existingClassAttr = attributes.find(a => a.name === 'class');
   let nodes = classStringParser(classString, { spaces: true });
@@ -36,9 +36,9 @@ function classBindingsToAttribute(modifier, attributes) {
       concat = builders.concat([existingClassAttr.value]);
     }
     let classCol = (existingClassAttr.loc && existingClassAttr.loc.start.column) || 0;
-    let modifierCol = (modifier.loc && modifier.loc.start.column) || 0;
+    let col = (pair.loc && pair.loc.start.column) || 0;
     let func;
-    if (classCol > modifierCol) {
+    if (classCol > col) {
       func = Array.prototype.unshift;
     } else {
       func = Array.prototype.push;
@@ -54,26 +54,61 @@ function classBindingsToAttribute(modifier, attributes) {
       concat = builders.concat(nodes);
       newClassAttr = builders.attr('class', concat);
     }
-    attributes.push(newClassAttr);
+    let index = pairIndex(pair, attributes, modifiers);
+    newClassAttr.loc = pair.loc;
+    attributes.splice(index, 0, newClassAttr);
   }
 }
 
-function attributeBindingsToAttribute(modifier, attributes) {
-  let pair = modifier.hash.pairs[0];
+function findColumnIndex(col, aCols, bCols) {
+  let cols = _.uniq([].concat(aCols)
+                      .concat(bCols)
+                      .sort((a,b) => a - b));
+  for (let i = 0; i < cols.length; i++) {
+    if (col <= cols[i]) {
+      return i;
+    }
+  }
+  return cols.length;
+}
+
+function nodeColumns(nodes) {
+  return nodes.map(n => (n.loc && n.loc.start.column) || 0);
+}
+
+function modifierColumns(modifiers) {
+  let cols = [];
+  modifiers.forEach(m => {
+    let pairCols = nodeColumns(m.hash.pairs);
+    Array.prototype.push.apply(cols, pairCols);
+  });
+  return cols;
+}
+
+function pairIndex(pair, attributes, modifiers) {
+  let col = (pair.loc && pair.loc.start.column) || 0;
+  let attrCols = nodeColumns(attributes);
+  let modCols = modifierColumns(modifiers);
+  let index = findColumnIndex(col, attrCols, modCols);
+  return index;
+}
+
+function attributeBindingsToAttribute(pair, attributes, modifiers) {
   let key = pair.key;
   let existingAttr = attributes.find(a => a.name === key);
+  if (existingAttr) {
+    throw new Error('Can\'t combine bind-attr keys with existing attributes');
+  }
   let node;
   if (pair.value.type === 'PathExpression') {
     node = builders.mustache(pair.value);
   } else {
     node = builders.mustache(pair.value.value);
   }
-  if (existingAttr) {
-    existingAttr.value = node;
-  } else {
-    let newAttr = builders.attr(key, node);
-    attributes.push(newAttr);
-  }
+  let newAttr = builders.attr(key, node);
+  let index = pairIndex(pair, attributes, modifiers);
+  newAttr.loc = pair.loc;
+  attributes.splice(index, 0, newAttr);
 }
 
 function convertBindAttr(source) {
@@ -84,11 +119,16 @@ function convertBindAttr(source) {
     if (node.type === 'ElementNode' && node.modifiers) {
       for (let i = 0; i < node.modifiers.length; i++) {
         let modifier = node.modifiers[i];
-        if (isBindAttr(modifier) && isClassBinding(modifier)) {
-          classBindingsToAttribute(modifier, node.attributes);
-          delete node.modifiers[i];
-        } else {
-          attributeBindingsToAttribute(modifier, node.attributes);
+        if (isBindAttr(modifier)) {
+          let pairs = modifier.hash.pairs;
+          for (let j = 0; j < pairs.length; j++) {
+            let pair = pairs[j];
+            if (isClassBinding(pair)) {
+              classBindingsToAttribute(pair, node.attributes, node.modifiers);
+            } else {
+              attributeBindingsToAttribute(pair, node.attributes, node.modifiers);
+            }
+          }
           delete node.modifiers[i];
         }
       }

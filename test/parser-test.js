@@ -110,4 +110,22 @@ describe('convertBindAttr', function() {
     let output = '<h1 src={{foo}} ></h1>';
     assert.equal(convertBindAttr(input), output);
   });
+
+  it('converts multiple arbitrary attributes', function() {
+    let input = '<h1 {{bind-attr src=foo title="bar"}}></h1>';
+    let output = '<h1 src={{foo}} title={{bar}} ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
+  it('converts multiple arbitrary attributes in separate bind-attrs preserving order', function() {
+    let input = '<h1 {{bind-attr title=foo}} {{bind-attr class="isActive:active"}} class="after"></h1>';
+    let output = '<h1 title={{foo}} class="{{if isActive "active"}} after" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
+  it('converts multiple arbitrary attributes preserving order', function() {
+    let input = '<h1 role="before" {{bind-attr title=foo class="isActive:active"}} src="after"></h1>';
+    let output = '<h1 role="before" title={{foo}} class="{{if isActive "active"}}" src="after" ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
 });
