@@ -58,6 +58,24 @@ function classBindingsToAttribute(modifier, attributes) {
   }
 }
 
+function attributeBindingsToAttribute(modifier, attributes) {
+  let pair = modifier.hash.pairs[0];
+  let key = pair.key;
+  let existingAttr = attributes.find(a => a.name === key);
+  let node;
+  if (pair.value.type === 'PathExpression') {
+    node = builders.mustache(pair.value);
+  } else {
+    node = builders.mustache(pair.value.value);
+  }
+  if (existingAttr) {
+    existingAttr.value = node;
+  } else {
+    let newAttr = builders.attr(key, node);
+    attributes.push(newAttr);
+  }
+}
+
 function convertBindAttr(source) {
   let ast = parse(source);
   let walker = new Walker(ast);
@@ -68,6 +86,9 @@ function convertBindAttr(source) {
         let modifier = node.modifiers[i];
         if (isBindAttr(modifier) && isClassBinding(modifier)) {
           classBindingsToAttribute(modifier, node.attributes);
+          delete node.modifiers[i];
+        } else {
+          attributeBindingsToAttribute(modifier, node.attributes);
           delete node.modifiers[i];
         }
       }

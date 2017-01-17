@@ -98,4 +98,16 @@ describe('convertBindAttr', function() {
     let output = '<h1 class="before {{if isActive "active"}} {{if isDisabled "disabled"}}" ></h1>';
     assert.equal(convertBindAttr(input), output);
   });
+
+  it('converts arbitrary attributes', function() {
+    let input = '<h1 {{bind-attr title="foo"}}></h1>';
+    let output = '<h1 title={{foo}} ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
+
+  it('converts arbitrary with no quotes', function() {
+    let input = '<h1 {{bind-attr src=foo}}></h1>';
+    let output = '<h1 src={{foo}} ></h1>';
+    assert.equal(convertBindAttr(input), output);
+  });
 });
