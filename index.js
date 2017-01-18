@@ -1,3 +1,3 @@
-import Rewite from './lib/rewrite';
+import rewrite from './lib/rewrite';
 
-export { Rewite };
+export { rewrite };
