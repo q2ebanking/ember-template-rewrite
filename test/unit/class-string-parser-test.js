@@ -1,7 +1,7 @@
 import assert from '../helpers/assert';
 import classStringParser from '../../lib/class-string-parser';
 
-describe('classStringParser', function() {
+describe('Unit: classStringParser', function() {
   it('single binding', function() {
     let actual = classStringParser('foo');
     let expected = [{

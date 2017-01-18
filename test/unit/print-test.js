@@ -1,11 +1,14 @@
 import assert from 'assert-diff';
-import { parse, print } from '../../';
+import {
+  preprocess,
+  print,
+} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
 function parsePrint(source) {
-  return print(parse(source));
+  return print(preprocess(source));
 }
 
-describe('print', function() {
+describe('Upstream: print', function() {
   it('preserves element text nodes', function() {
     let expected = '<div> </div>';
     assert.equal(parsePrint(expected), expected);

@@ -1,9 +1,9 @@
 import assert from 'assert-diff';
-import { parse } from '../../';
+import { preprocess } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
-describe('parse', function() {
+describe('Upstream: parse', function() {
   it('parses source to AST', function() {
-    let ast = parse('<div> </div>');
+    let ast = preprocess('<div> </div>');
     assert.equal(ast.type, 'Program');
   });
 });
