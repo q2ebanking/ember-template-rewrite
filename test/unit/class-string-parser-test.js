@@ -1,5 +1,5 @@
-import assert from './helpers/assert';
-import classStringParser from '../lib/class-string-parser';
+import assert from '../helpers/assert';
+import classStringParser from '../../lib/class-string-parser';
 
 describe('classStringParser', function() {
   it('single binding', function() {

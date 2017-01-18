@@ -1,38 +1,5 @@
 import assert from 'assert-diff';
-import { parse, print, convertBindAttr } from '../';
-
-function parsePrint(source) {
-  return print(parse(source));
-}
-
-describe('parse', function() {
-  it('parses source to AST', function() {
-    let ast = parse('<div> </div>');
-    assert.equal(ast.type, 'Program');
-  });
-});
-
-describe('print', function() {
-  it('preserves element text nodes', function() {
-    let expected = '<div> </div>';
-    assert.equal(parsePrint(expected), expected);
-  });
-
-  it('preserves element attributes', function() {
-    let expected = '<div foo="bar" baz="qux"></div>';
-    assert.equal(parsePrint(expected), expected);
-  });
-
-  it('preserves mustache params', function() {
-    let expected = '{{foo bar baz=qux}}';
-    assert.equal(parsePrint(expected), expected);
-  });
-
-  it('preserves mustaches in attributes', function() {
-    let expected = '<div class="a {{if foo "bar"}} b"></div>';
-    assert.equal(parsePrint(expected), expected);
-  });
-});
+import { convertBindAttr } from '../../';
 
 describe('convertBindAttr', function() {
   it('converts class binding', function() {
