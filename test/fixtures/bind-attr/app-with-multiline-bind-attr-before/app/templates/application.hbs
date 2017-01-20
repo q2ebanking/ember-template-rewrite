@@ -1,0 +1,26 @@
+<h2 {{bind-attr
+      title=title
+      id="id"
+      class="active"
+      role="foo"
+    }}>Welcome to Ember.js</h2>
+<ul>
+  {{#each model as |m|}}
+    <li>{{m}}</li>
+  {{/each}}
+</ul>
+
+<div>
+  <div>
+    {{#some-component
+       value=model.value
+       thing="foo"
+       options=options
+       flag=true as |m|}}
+       <div {{bind-attr class="active:a:b"}}>
+       </div>
+    {{/some-component}}
+  </div>
+</div>
+
+{{outlet}}

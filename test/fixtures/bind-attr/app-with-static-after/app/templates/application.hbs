@@ -1,3 +1,8 @@
-<h2 title={{title}} id={{id}} >Welcome to Ember.js</h2>
+<h2 title={{title}} id={{id}}>Welcome to Ember.js</h2>
+<ul>
+  {{#each model as |m|}}
+    <li>{{m}}</li>
+  {{/each}}
+</ul>
 
 {{outlet}}

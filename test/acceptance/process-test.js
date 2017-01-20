@@ -28,5 +28,15 @@ describe('Acceptance: process', function() {
       let actual = process(input);
       assert.equal(actual, output);
     });
+
+    it('converts multiline mustache', function() {
+      let { input, output } = read({
+        formula,
+        scenario: 'app-with-multiline-bind-attr',
+        file: 'app/templates/application.hbs'
+      });
+      let actual = process(input);
+      assert.equal(actual, output);
+    });
   });
 });

@@ -29,6 +29,7 @@
     "commander": "^2.9.0",
     "fs-extra": "^2.0.0",
     "glimmer-engine": "^0.19.3",
+    "pegjs": "^0.10.0",
     "underscore": "^1.8.3"
   }
 }
