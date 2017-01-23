@@ -136,6 +136,14 @@ describe('Unit: print', function() {
     printEqual('<hr />');
   });
 
+  it('prints &nbsp;', function() {
+    printEqual('&nbsp;');
+  });
+
+  it('prints &times;', function() {
+    printEqual('&times;');
+  });
+
   xit('preserves newline after mustache hash', function() {
     printEqual('{{foo\n  bar=bar\n}}');
   });
