@@ -116,10 +116,6 @@ describe('Unit: print', function() {
     printEqual('<!-- foo -->');
   });
 
-  it('Handlebars comment', function() {
-    assert.equal(printTransform('{{! foo }}'), '{{!-- foo --}}');
-  });
-
   it('Handlebars comment: in ElementNode', function() {
     printEqual('<div {{!-- foo --}}></div>');
   });
@@ -130,6 +126,10 @@ describe('Unit: print', function() {
 
   it('Handlebars in handlebar comment', function() {
     printEqual('{{!-- {{foo-bar}} --}}');
+  });
+
+  it('preserves handlebars comment with no dashes', function() {
+    printEqual("{{! will not print to HTML output }}");
   });
 
   it('prints self closing hr tag', function() {
@@ -150,10 +150,6 @@ describe('Unit: print', function() {
 
   xit('preserves else if', function() {
     printEqual("{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}");
-  });
-
-  xit('preserves handlebars comment', function() {
-    printEqual("{{! will not print to HTML output }}");
   });
 
   xit('preserves action position in attributes', function() {
