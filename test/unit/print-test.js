@@ -6,12 +6,12 @@ import {
 import { escape, unescape } from '../../lib/whitespace';
 import print from '../../lib/printer';
 
-function printTransform(template) {
-  return unescape(print(preprocess(escape(template))));
+function printTransform(template, options) {
+  return unescape(print(preprocess(escape(template)), options));
 }
 
-function printEqual(template) {
-  assert.equal(printTransform(template), template);
+function printEqual(template, options) {
+  assert.equal(printTransform(template, options), template);
 }
 
 describe('Unit: print', function() {
@@ -152,10 +152,6 @@ describe('Unit: print', function() {
     printEqual("{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}");
   });
 
-  xit('preserves single quotes in mustaches', function() {
-    printEqual("{{foo 'bar'}}");
-  });
-
   xit('preserves handlebars comment', function() {
     printEqual("{{! will not print to HTML output }}");
   });
@@ -174,5 +170,11 @@ describe('Unit: print', function() {
 
   xit('preserves whitespace between block params', function() {
     printEqual('{{#foo bar=bar as | a b |}}{{/foo}}');
+  });
+
+  it('configures single quotes for mustache blocks', function() {
+    printEqual(`<a id="id" {{action 'foo'}}>` +
+               `{{#foo bar='bar' as |a|}}{{/foo}}</a>`,
+      { quotes: { mustache: "'" } });
   });
 });
