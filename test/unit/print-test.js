@@ -160,7 +160,7 @@ describe('Unit: print', function() {
     printEqual('<div foo="bar" {{action "boom"}} baz="qux"></div>');
   });
 
-  xit('unsafe mustaches', function() {
+  it('unsafe mustaches', function() {
     printEqual('{{{unsafe}}}');
   });
 
