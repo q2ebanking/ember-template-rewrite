@@ -144,6 +144,30 @@ describe('Unit: print', function() {
     printEqual('&times;');
   });
 
+  xit('preserves binary attributes', function() {
+    printEqual("<p selected></p><input disabled />");
+  });
+
+  xit('preserves else if', function() {
+    printEqual("{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}");
+  });
+
+  xit('preserves single quotes in mustaches', function() {
+    printEqual("{{foo 'bar'}}");
+  });
+
+  xit('preserves handlebars comment', function() {
+    printEqual("{{! will not print to HTML output }}");
+  });
+
+  xit('preserves action position in attributes', function() {
+    printEqual('<div foo="bar" {{action "boom"}} baz="qux"></div>');
+  });
+
+  xit('unsafe mustaches', function() {
+    printEqual('{{{unsafe}}}');
+  });
+
   xit('preserves newline after mustache hash', function() {
     printEqual('{{foo\n  bar=bar\n}}');
   });
