@@ -3,16 +3,14 @@ import {
   preprocess,
   builders as b
 } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
-import { escape, unescape } from '../../lib/whitespace';
+import _printEqual, {
+  preprocess as p
+} from '../helpers/print-equal';
 import print from '../../lib/printer';
 
-function printTransform(template, options) {
-  return unescape(print(preprocess(escape(template)), options));
-}
-
-function printEqual(template, options) {
-  assert.equal(printTransform(template, options), template);
-}
+const printEqual = (template, options) => {
+  _printEqual(template, template, options);
+};
 
 describe('Unit: print', function() {
   it('preserves element text nodes', function() {
@@ -37,6 +35,10 @@ describe('Unit: print', function() {
 
   it('ElementNode: nested tags with indent', function() {
     printEqual('<div>\n  <p>Test</p>\n</div>');
+  });
+
+  it('ElementNode: nested tags with binding', function() {
+    printEqual('<div>\n  <p id={{id}}>Test</p>\n</div>');
   });
 
   it('ElementNode: attributes', function() {
@@ -129,7 +131,7 @@ describe('Unit: print', function() {
   });
 
   it('preserves handlebars comment with no dashes', function() {
-    printEqual("{{! will not print to HTML output }}");
+    printEqual('{{! will not print to HTML output }}');
   });
 
   it('prints self closing hr tag', function() {
@@ -145,15 +147,23 @@ describe('Unit: print', function() {
   });
 
   xit('preserves binary attributes', function() {
-    printEqual("<p selected></p><input disabled />");
+    printEqual('<p selected></p><input disabled />');
   });
 
   xit('preserves else if', function() {
-    printEqual("{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}");
+    printEqual('{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}');
   });
 
-  xit('preserves action position in attributes', function() {
+  it('preserves action position in attributes', function() {
     printEqual('<div foo="bar" {{action "boom"}} baz="qux"></div>');
+  });
+
+  it('preserves comment position in attributes', function() {
+    printEqual('<div foo="bar" {{! why here }} baz="qux"></div>');
+  });
+
+  it('preserves attrs/modifiers/comments position in attributes when multiline', function() {
+    printEqual('<div\n   foo="bar"\n   {{action "foo"}}\n   {{! why here }}\n   baz="qux"></div>');
   });
 
   it('unsafe mustaches', function() {
@@ -162,6 +172,10 @@ describe('Unit: print', function() {
 
   xit('preserves newline after mustache hash', function() {
     printEqual('{{foo\n  bar=bar\n}}');
+  });
+
+  it('preserves newlines for element attributes', function() {
+    printEqual('<div\n   foo="bar"\n   baz="qux"></div>');
   });
 
   xit('preserves whitespace between block params', function() {

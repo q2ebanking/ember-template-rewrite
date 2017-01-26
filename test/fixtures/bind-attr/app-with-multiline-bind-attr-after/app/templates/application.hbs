@@ -1,6 +1,6 @@
 <h2 title={{title}}
       id={{id}}
-      class="{{active}}"
+      class={{active}}
       role={{foo}}>Welcome to Ember.js</h2>
 <ul>
   {{#each model as |m|}}
@@ -15,7 +15,7 @@
        thing="foo"
        options=options
        flag=true as |m|}}
-       <div class="{{if active "a" "b"}}">
+       <div class={{if active "a" "b"}}>
        </div>
     {{/some-component}}
   </div>
