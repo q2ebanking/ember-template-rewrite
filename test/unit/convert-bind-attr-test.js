@@ -1,4 +1,5 @@
 import assert from 'assert-diff';
+import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import convertBindAttr, {
   offsetLoc,
   nodesAfter,
@@ -25,7 +26,7 @@ describe('Unit: convertBindAttr', function() {
   });
 
   it('converts multiple class bindings', function() {
-    let input = '<h1 {{bind-attr class="active  status"}}></h1>';
+    let input = '<h1 {{bind-attr class="active status"}}></h1>';
     let output = '<h1 class="{{active}} {{status}}"></h1>';
     printEqual(input, output);
   });
@@ -129,9 +130,9 @@ describe('Unit: attributeBindingToAttribute', function() {
 describe('Unit: offsetLoc', function() {
   describe('no line change', function() {
     it('adds column offset to loc start and end', function() {
-      let input = loc(5,1,8,2);
+      let input = builders.loc(1,5,2,8);
       let offset = { column: 3, line: 0 };
-      let expected = loc(8,1,11,2);
+      let expected = builders.loc(1,8,2,11);
       let actual = offsetLoc(input, offset);
       assert.deepEqual(actual, expected);
     });
@@ -139,9 +140,9 @@ describe('Unit: offsetLoc', function() {
 
   describe('with line offset', function() {
     it('adds only line offset to loc start and end', function() {
-      let input = loc(5,1,8,2);
+      let input = builders.loc(1,5,2,8);
       let offset = { column: 3, line: 2 };
-      let expected = loc(5,3,8,4);
+      let expected = builders.loc(3,5,4,8);
       let actual = offsetLoc(input, offset);
       assert.deepEqual(actual, expected);
     });

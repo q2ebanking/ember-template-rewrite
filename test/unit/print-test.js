@@ -29,6 +29,10 @@ describe('Unit: print', function() {
     printEqual('<div class="a {{if foo "bar"}} b"></div>');
   });
 
+  it('preserves bare mustache in attributes', function() {
+    printEqual('<div class={{if foo "bar"}}></div>');
+  });
+
   it('ElementNode: tag', function() {
     printEqual('<h1></h1>');
   });
@@ -148,6 +152,14 @@ describe('Unit: print', function() {
 
   xit('preserves binary attributes', function() {
     printEqual('<p selected></p><input disabled />');
+  });
+
+  it('preserves whitespace around indented if/else', function() {
+    printEqual('<div>\n  {{#if foo}}\n    {{foo}}\n  {{else}}\n    {{bar}}\n  {{/if}}\n</div>');
+  });
+
+  xit('preserves chained else if', function() {
+    printEqual('{{#each foo as |f|}}{{foo}}{{else if bar}}{{bar}}{{/each}}');
   });
 
   xit('preserves else if', function() {
