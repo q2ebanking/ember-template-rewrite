@@ -93,7 +93,7 @@ describe('Unit: print', function() {
     printEqual('<p>{{my-component submit=(action (mut model.name) (full-name model.firstName "Smith"))}}</p>');
   });
 
-  it('BlockStatement: multiline', function() {
+  it('BlockStatement: multiline #each', function() {
     printEqual('<ul>  \n  {{#each foos as |foo index|}}  \n    <li>{{foo}}: {{index}}</li>  \n   {{/each}}\n</ul>');
   });
 
@@ -156,6 +156,15 @@ describe('Unit: print', function() {
 
   it('preserves whitespace around indented if/else', function() {
     printEqual('<div>\n  {{#if foo}}\n    {{foo}}\n  {{else}}\n    {{bar}}\n  {{/if}}\n</div>');
+  });
+
+  it('preserves whitespace around each with multiline content', function() {
+    printEqual(`
+      {{#each things as |t|}}
+        {{something
+            a=b}}
+      {{/each}}
+    `);
   });
 
   xit('preserves chained else if', function() {
