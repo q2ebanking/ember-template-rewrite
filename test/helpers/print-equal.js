@@ -1,13 +1,7 @@
 import assert from 'assert-diff';
-import { escape, unescape } from '../../lib/whitespace';
-import {
-  preprocess as _preprocess
-} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
+import { unescape } from '../../lib/whitespace';
 import print from '../../lib/printer';
-
-function preprocess(template) {
-  return _preprocess(escape(template));
-}
+import preprocess from '../../lib/preprocess';
 
 function printTransform(template, options) {
   let ast = preprocess(template);

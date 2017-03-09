@@ -1,58 +1,26 @@
 import assert from '../helpers/assert';
 import classStringParser from '../../lib/class-string-parser';
+import preprocess from '../../lib/preprocess';
 
 describe('Unit: classStringParser', function() {
   it('single binding', function() {
+    let expected = preprocess('{{foo}}').body;
     let actual = classStringParser('foo');
-    let expected = [{
-      type: 'MustacheStatement',
-      path: {
-        type: 'PathExpression',
-        parts: ['foo'],
-      },
-    }];
     assert.equal(actual.length, 1);
     assert.includeDeepMembers(actual, expected);
   });
 
   it('multiple binding', function() {
     let actual = classStringParser('foo  bar');
-
-    let expected = [{
-      type: 'MustacheStatement',
-      path: {
-        type: 'PathExpression',
-        parts: ['foo'],
-      },
-    }, {
-      type: 'MustacheStatement',
-      path: {
-        type: 'PathExpression',
-        parts: ['bar'],
-      },
-    }];
+    let expected = preprocess('{{foo}}{{bar}}').body;
     assert.equal(actual.length, 2);
-    assert.includeDeepMembers(actual, expected);
+    assert.includeDeepMembers(actual[0], expected[0]);
+    assert.includeDeepMembers(actual[1], expected[1]);
   });
 
   it('single ternary', function() {
     let actual = classStringParser('foo:bar:baz');
-
-    let expected = [{
-      type: 'MustacheStatement',
-      path: {
-        type: 'PathExpression',
-        parts: [ 'if' ],
-      },
-      params: [
-        {
-          type: 'PathExpression',
-          parts: [ 'foo' ],
-        },
-        { type: 'StringLiteral', value: 'bar' },
-        { type: 'StringLiteral', value: 'baz' }
-      ],
-    }];
+    let expected = preprocess('{{if foo "bar" "baz"}}').body;
     assert.equal(actual.length, 1);
     assert.includeDeepMembers(actual, expected);
   });
