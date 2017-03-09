@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers js:babel-core/register --require babel-polyfill --reporter spec --slow 50",
+    "test": "mocha --compilers js:babel-core/register --require babel-polyfill --reporter spec --slow 50",
     "tdd": "npm test -- -w",
-    "cover": "./node_modules/.bin/istanbul cover npm test"
+    "cover": "istanbul cover npm test"
   },
   "author": "Chase McCarthy",
   "license": "ISC",
