@@ -1,5 +1,5 @@
 import assert from '../helpers/assert';
-import { sort } from '../../lib/location';
+import { sortNodes as sort } from '../../lib/utils/node';
 import gridToLocations from '../helpers/grid-to-locations';
 
 describe('Unit: location', function() {

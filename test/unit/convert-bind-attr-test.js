@@ -1,18 +1,17 @@
 import assert from 'assert-diff';
 import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import convertBindAttr, {
-  offsetLoc,
-  nodesAfter,
-  nodesBefore,
   attributeBindingToAttribute,
-  removeBindAttr,
-  nodeIndex
+  removeBindAttr
 } from '../../lib/formulas/convert-bind-attr';
-import { sort } from '../../lib/location';
+import {
+  sortNodes as sort
+} from '../../lib/utils/node';
 import gridToLocations from '../helpers/grid-to-locations';
 import _printEqual, {
   preprocess as p
 } from '../helpers/print-equal';
+import { nodeToLabel } from '../helpers/node';
 
 const printEqual = (input, output) => {
   _printEqual(input, output, { formulas: [convertBindAttr] });
@@ -127,60 +126,6 @@ describe('Unit: attributeBindingToAttribute', function() {
   });
 });
 
-describe('Unit: offsetLoc', function() {
-  describe('no line change', function() {
-    it('adds column offset to loc start and end', function() {
-      let input = builders.loc(1,5,2,8);
-      let offset = { column: 3, line: 0 };
-      let expected = builders.loc(1,8,2,11);
-      let actual = offsetLoc(input, offset);
-      assert.deepEqual(actual, expected);
-    });
-  });
-
-  describe('with line offset', function() {
-    it('adds only line offset to loc start and end', function() {
-      let input = builders.loc(1,5,2,8);
-      let offset = { column: 3, line: 2 };
-      let expected = builders.loc(3,5,4,8);
-      let actual = offsetLoc(input, offset);
-      assert.deepEqual(actual, expected);
-    });
-  });
-});
-
-describe('Unit: nodesAfter', function() {
-  it('find all nodes with locs after given node from unsorted input list', function() {
-    let grid = `| B  D |
-                |  A  F|
-                | E  C |`;
-    let nodes = gridToLocations(grid);
-    let indexOfA = nodes.findIndex(n => n.name === 'A');
-    let after = nodes.splice(indexOfA,1)[0];
-
-    let actual = nodesAfter(after, nodes).map(n => n.name);
-
-    let expected = ['F'];
-    assert.deepEqual(actual, expected);
-  });
-});
-
-describe('Unit: nodesBefore', function() {
-  it('find all nodes with locs before given node from unsorted input list', function() {
-    let grid = `| B  D |
-                |  A  F|
-                | E  C |`;
-    let nodes = gridToLocations(grid);
-    let indexOfF = nodes.findIndex(n => n.name === 'F');
-    let after = nodes.splice(indexOfF,1)[0];
-
-    let actual = nodesBefore(after, nodes).map(n => n.name);
-
-    let expected = ['A'];
-    assert.deepEqual(actual, expected);
-  });
-});
-
 describe('Unit: removeBindAttr', function() {
   it('removes bind-attr modifier', function() {
     let node = p('<p {{bind-attr a=b}}></p>').body[0];
@@ -265,19 +210,3 @@ describe('Unit: removeBindAttr', function() {
 });
 
 
-function nodeToLabel(node) {
-  if (node.type === 'ElementModifierStatement') {
-    return node.path.original;
-  } else if (node.type === 'AttrNode') {
-    return node.name;
-  }
-}
-
-function nodeIndexes(...nodes) {
-  nodes = nodes.reduce((acc, n) => acc.concat(n), []);
-  return nodes.reduce((acc,a) => {
-    let key = nodeToLabel(a);
-    acc[key] = nodeIndex(a, ...nodes);
-    return acc;
-  }, {});
-}
