@@ -1,15 +1,19 @@
 {
   "name": "ember-template-rewrite",
   "version": "0.0.1",
-  "description": "",
+  "description": "A utility for automatically refactoring Ember.js templates.",
   "main": "index.js",
+  "repository" : {
+    "type" : "git",
+    "url" : "ssh://git@bitbucket:7999/ember/ember-template-rewrite.git"
+  },
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --require babel-polyfill --reporter spec --slow 50",
     "tdd": "npm test -- -w",
     "cover": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register --require babel-polyfill"
   },
   "author": "Chase McCarthy",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "devDependencies": {
     "assert-diff": "^1.1.0",
     "babel-cli": "^6.18.0",
