@@ -1,4 +1,4 @@
-import assert from 'assert-diff';
+import assert from '../helpers/assert';
 import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import convertBindAttr, {
   attributeBindingToAttribute,
@@ -162,6 +162,10 @@ describe('Unit: removeBindAttr', function() {
     return attrs.map(a => a.loc.start.column);
   }
 
+  function attrLines(attrs) {
+    return attrs.map(a => a.loc.start.line);
+  }
+
   it('places new attributes in the right order', function() {
     let node = p('<p a="b" {{bind-attr c=d}} e="f"></p>').body[0];
     let modifiers = node.modifiers;
@@ -180,9 +184,7 @@ describe('Unit: removeBindAttr', function() {
   });
 
   it('shifts locations of following attributes', function() {
-    let program = p('<p a="b" {{bind-attr c=d}} e="f"></p>');
-    // let node = p('<p a="b" {{bind-attr c=d}} e="f"></p>').body[0];
-    let node = program.body[0];
+    let node = p('<p a="b" {{bind-attr c=d}} e="f"></p>').body[0];
     let modifiers = node.modifiers;
     let modifier = modifiers[0];
     let sortedAttrs = sort(modifiers, node.attributes);
@@ -197,16 +199,26 @@ describe('Unit: removeBindAttr', function() {
     assert.deepEqual(attrColumns(node.attributes), [3, 9, 17]);
   });
 
-  it('calculates node index in given sorted lists', function() {
-    let node = p('<p a="b" {{bind-attr c=d}} e="f"></p>').body[0];
+  it('shifts multiline attributes up', function() {
+    let node = p('<p {{bind-attr\n   c=d\n   e="f"}} g="h"></p>').body[0];
     let modifiers = node.modifiers;
-    let attributes = node.attributes;
-    let indexes;
-    indexes = nodeIndexes(modifiers, attributes);
-    assert.deepEqual(indexes, { a: 0, 'bind-attr': 1, e: 2 });
-    indexes = nodeIndexes(attributes, modifiers);
-    assert.deepEqual(indexes, { a: 0, 'bind-attr': 1, e: 2 });
+    let modifier = modifiers[0];
+    let sortedAttrs = sort(modifiers, node.attributes);
+    //<p {{bind-attr\n   c=d\n   e="f"}} g="h"></p>
+    //^  ^            ^  ^       ^       ^
+    //0  3            0  3       3       11
+    assert.deepEqual(attrColumns(node.attributes), [11]);
+    assert.deepEqual(attrLines(node.attributes),   [3]);
+
+    removeBindAttr(modifier, node, sortedAttrs);
+
+    //<p c={{d}}\n   e={{f}} g="h"></p>
+    //^  ^        ^  ^       ^
+    //0  3        0  3       11
+    assert.deepEqual(attrColumns(node.attributes), [3, 3, 11]);
+    assert.deepEqual(attrLines(node.attributes),   [1, 2, 2]);
   });
+
 });
 
 
