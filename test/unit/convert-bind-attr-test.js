@@ -281,16 +281,3 @@ function nodeIndexes(...nodes) {
     return acc;
   }, {});
 }
-
-function loc(colStart, lineStart, colEnd, lineEnd) {
-  return {
-    start: {
-      column: colStart,
-      line: lineStart
-    },
-    end: {
-      column: colEnd,
-      line: lineEnd
-    }
-  };
-}
