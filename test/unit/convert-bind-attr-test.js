@@ -5,7 +5,8 @@ import convertBindAttr, {
   removeBindAttr
 } from '../../lib/formulas/convert-bind-attr';
 import {
-  sortNodes as sort
+  sortNodes as sort,
+  offsetNode
 } from '../../lib/utils/node';
 import gridToLocations from '../helpers/grid-to-locations';
 import _printEqual, {
@@ -98,9 +99,27 @@ describe('Unit: convertBindAttr', function() {
     printEqual(input, output);
   });
 
-  it('converts multiline attribute lists', function() {
-    let input = '<h1 a="b"\n  {{bind-attr c="d"}}\n  e="f"></h1>';
-    let output = '<h1 a="b"\n  c={{d}}\n  e="f"></h1>';
+  it('converts inside block helper', function() {
+    let input = '{{#if foo}}\n  <h1 {{bind-attr foo=bar baz=foo}}></h1>{{/if}}';
+    let output = '{{#if foo}}\n  <h1 foo={{bar}} baz={{foo}}></h1>{{/if}}';
+    printEqual(input, output);
+  });
+
+  it('converts mixed attribute list', function() {
+    let input = '<h1 role="before" {{bind-attr title=foo id="id" class="isActive:active"}} src="after"></h1>';
+    let output = '<h1 role="before" title={{foo}} id={{id}} class={{if isActive "active"}} src="after"></h1>';
+    printEqual(input, output);
+  });
+
+  it('converts with action first', function() {
+    let input = '<div {{action "toggleIsOpen"}} {{bind-attr a=b}}></div>';
+    let output = '<div {{action "toggleIsOpen"}} a={{b}}></div>';
+    printEqual(input, output);
+  });
+
+  xit('converts with no space between modifier', function() {
+    let input = '<div test-id="btnManageLabels"{{bind-attr class="" title=title}} {{action "manageLabels"}}></div>';
+    let output = '<div test-id="btnManageLabels"class="" title={{title}} {{action "manageLabels"}}></div>';
     printEqual(input, output);
   });
 });
@@ -110,17 +129,7 @@ describe('Unit: attributeBindingToAttribute', function() {
     it('constructs a mustache attribute', function() {
       let pair = p('{{bind-attr foo=bar}}').body[0].hash.pairs[0];
       let actual = attributeBindingToAttribute(pair);
-      let expected = {
-        type: 'AttrNode',
-        name: 'foo',
-        value: {
-          type: 'MustacheStatement',
-          path: {
-            type: 'PathExpression',
-            original: 'bar'
-          }
-        }
-      };
+      let expected = attributes('foo={{bar}}')[0];
       assert.includeDeepMembers(actual, expected);
     });
   });
@@ -128,34 +137,28 @@ describe('Unit: attributeBindingToAttribute', function() {
 
 describe('Unit: removeBindAttr', function() {
   it('removes bind-attr modifier', function() {
-    let node = p('<p {{bind-attr a=b}}></p>').body[0];
+    let ast = p('<p {{bind-attr a=b}}></p>');
+    let node = ast.body[0];
     let modifiers = node.modifiers;
     let modifier = modifiers[0];
-    let sortedAttrs = sort(modifiers);
-    removeBindAttr(modifier, node, sortedAttrs);
+
+    removeBindAttr(modifier, node, ast);
+
     assert.equal(modifiers.length, 0);
   });
 
   it('inserts new attributes', function() {
-    let node = p('<p {{bind-attr a=b}}></p>').body[0];
+    let ast = p('<p {{bind-attr a=b}}></p>');
+    let node = ast.body[0];
     let modifiers = node.modifiers;
     let modifier = modifiers[0];
-    let sortedAttrs = sort(modifiers);
     assert.equal(node.attributes.length, 0);
-    removeBindAttr(modifier, node, sortedAttrs);
+
+    removeBindAttr(modifier, node, ast);
+
     assert.equal(node.attributes.length, 1);
-    let expected = [{
-      type: 'AttrNode',
-      name: 'a',
-      value: {
-        type: 'MustacheStatement',
-        path: {
-          type: 'PathExpression',
-          original: 'b'
-        }
-      }
-    }];
-    assert.includeDeepMembers(node.attributes, expected);
+    let expected = p('<p a={{b}}></p>');
+    assert.includeDeepMembers(ast, expected);
   });
 
   function attrColumns(attrs) {
@@ -167,16 +170,16 @@ describe('Unit: removeBindAttr', function() {
   }
 
   it('places new attributes in the right order', function() {
-    let node = p('<p a="b" {{bind-attr c=d}} e="f"></p>').body[0];
+    let ast = p('<p a="b" {{bind-attr c=d}} e="f"></p>');
+    let node = ast.body[0];
     let modifiers = node.modifiers;
     let modifier = modifiers[0];
-    let sortedAttrs = sort(modifiers, node.attributes);
     let attrOrder;
     //<p a="b" {{bind-attr c=d}} e="f"></p>
     attrOrder = node.attributes.map(a => nodeToLabel(a));
     assert.deepEqual(attrOrder, ['a', 'e']);
 
-    removeBindAttr(modifier, node, sortedAttrs);
+    removeBindAttr(modifier, node, ast);
 
     //<p a="b" c={{d}} e="f"></p>
     attrOrder = node.attributes.map(a => nodeToLabel(a));
@@ -184,15 +187,16 @@ describe('Unit: removeBindAttr', function() {
   });
 
   it('shifts locations of following attributes', function() {
-    let node = p('<p a="b" {{bind-attr c=d}} e="f"></p>').body[0];
+    let ast = p('<p a="b" {{bind-attr c=d}} e="f"></p>');
+    let node = ast.body[0];
     let modifiers = node.modifiers;
     let modifier = modifiers[0];
-    let sortedAttrs = sort(modifiers, node.attributes);
     //<p a="b" {{bind-attr c=d}} e="f"></p>
-    //   3                       27
+    //   ^     ^                ^^
+    //   3     9              26  27
     assert.deepEqual(attrColumns(node.attributes), [3, 27]);
 
-    removeBindAttr(modifier, node, sortedAttrs);
+    removeBindAttr(modifier, node, ast);
 
     //<p a="b" c={{d}} e="f"></p>
     //   3     9       17
@@ -200,17 +204,17 @@ describe('Unit: removeBindAttr', function() {
   });
 
   it('shifts multiline attributes up', function() {
-    let node = p('<p {{bind-attr\n   c=d\n   e="f"}} g="h"></p>').body[0];
+    let ast = p('<p {{bind-attr\n   c=d\n   e="f"}} g="h"></p>');
+    let node = ast.body[0];
     let modifiers = node.modifiers;
     let modifier = modifiers[0];
-    let sortedAttrs = sort(modifiers, node.attributes);
     //<p {{bind-attr\n   c=d\n   e="f"}} g="h"></p>
     //^  ^            ^  ^       ^       ^
     //0  3            0  3       3       11
     assert.deepEqual(attrColumns(node.attributes), [11]);
     assert.deepEqual(attrLines(node.attributes),   [3]);
 
-    removeBindAttr(modifier, node, sortedAttrs);
+    removeBindAttr(modifier, node, ast);
 
     //<p c={{d}}\n   e={{f}} g="h"></p>
     //^  ^        ^  ^       ^
@@ -221,4 +225,9 @@ describe('Unit: removeBindAttr', function() {
 
 });
 
-
+function attributes(source) {
+  let expected = `<p ${source}></p>`;
+  let attributes = p(expected).body[0].attributes;
+  offsetNode(attributes, { column: -3, line: 0 }, { recursive: true });
+  return attributes;
+}

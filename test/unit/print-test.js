@@ -33,6 +33,10 @@ describe('Unit: print', function() {
     printEqual('<div class={{if foo "bar"}}></div>');
   });
 
+  it('preserves multiple if statements in class', function() {
+    printEqual('<div class="{{if a "b"}} {{if a "b"}} {{if a "b"}}"></div>');
+  });
+
   it('ElementNode: tag', function() {
     printEqual('<h1></h1>');
   });
@@ -101,6 +105,26 @@ describe('Unit: print', function() {
     printEqual('{{#if foo}}\n   *<div></div>\n{{/if}}');
   });
 
+  it('BlockStatement: multiline nested #if', function() {
+    printEqual(`
+        <div class="active">
+          <span class="name"></span>
+          {{#if datum.isExternal}}
+            {{toggle-switch
+                callbackParam=datum}}
+          {{/if}}
+        </div>
+      `);
+  });
+
+  it('BlockStatement: multiline #if with bind-attr', function() {
+    printEqual('{{#if foo}}\n  <h1 {{bind-attr foo=bar baz=foo}}></h1>{{/if}}');
+  });
+
+  it('BlockStatement: multiple #if on same line', function() {
+    printEqual('<p>\n  {{#if foo}}{{#if bar}}\n  <h1></h1>{{/if}}{{/if}}</p>');
+  });
+
   it('BlockStatement: inline', function() {
     printEqual('{{#if foo}}<p>{{foo}}</p>{{/if}}');
   });
@@ -139,7 +163,7 @@ describe('Unit: print', function() {
   });
 
   it('prints self closing hr tag', function() {
-    printEqual('<hr />');
+    printEqual('<hr>');
   });
 
   it('prints &nbsp;', function() {
@@ -191,8 +215,23 @@ describe('Unit: print', function() {
     printEqual('{{{unsafe}}}');
   });
 
-  xit('preserves newline after mustache hash', function() {
+  it('preserves newline after mustache hash', function() {
     printEqual('{{foo\n  bar=bar\n}}');
+  });
+
+  xit('preserves multiple class if statements', function() {
+    printEqual('<div class="{{if foo "a" "b"}} selected {{if bar "c"}}"></div>');
+  });
+
+  it('preserves newline and spaces after mustache hash', function() {
+    printEqual(`
+      {{foo
+        bar=bar
+      }}
+      {{why.would.you.doThis
+
+        }}
+    `);
   });
 
   it('preserves newlines for element attributes', function() {

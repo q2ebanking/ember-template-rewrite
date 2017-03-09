@@ -20,13 +20,13 @@ describe('Acceptance: process', function() {
     let formula = 'bind-attr';
 
     it('converts static bindings', function() {
-      let { input, output } = read({
+      let { input, output: expected } = read({
         formula,
         scenario: 'app-with-static',
         file: 'app/templates/application.hbs'
       });
-      let actual = process(input);
-      assert.equal(actual, output);
+      let actual = process(input, { formulas: ['convert-bind-attr'] });
+      assert.equal(actual, expected);
     });
 
     it('converts multiline mustache', function() {
@@ -35,7 +35,7 @@ describe('Acceptance: process', function() {
         scenario: 'app-with-multiline-bind-attr',
         file: 'app/templates/application.hbs'
       });
-      let actual = process(input);
+      let actual = process(input, { formulas: ['convert-bind-attr'] });
       assert.equal(actual, output);
     });
   });
