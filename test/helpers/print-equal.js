@@ -10,7 +10,7 @@ function preprocess(template) {
 }
 
 function printTransform(template, options) {
-  let ast = preprocess(escape(template));
+  let ast = preprocess(template);
   options = options || {};
   (options.formulas || []).forEach(f => ast = f(ast, options))
   return unescape(print(ast, options));
