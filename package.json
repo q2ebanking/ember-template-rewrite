@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --require babel-polyfill --reporter spec --slow 50",
     "tdd": "npm test -- -w",
-    "cover": "istanbul cover npm test"
+    "cover": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register --require babel-polyfill"
   },
   "author": "Chase McCarthy",
   "license": "ISC",
