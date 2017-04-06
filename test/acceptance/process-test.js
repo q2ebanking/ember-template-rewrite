@@ -39,4 +39,19 @@ describe('Acceptance: process', function() {
       assert.equal(actual, output);
     });
   });
+
+  describe('each-in', function() {
+
+    let formula = 'each-in';
+
+    it('converts each-in with multiline program', function() {
+      let { input, output: expected } = read({
+        formula,
+        scenario: 'app-with-multiline-each-in',
+        file: 'app/templates/application.hbs'
+      });
+      let actual = process(input, { formulas: ['convert-each-in'] });
+      assert.equal(actual, expected);
+    });
+  });
 });

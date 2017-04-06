@@ -1,0 +1,11 @@
+<div>
+  <div>
+    {{#each
+       person in people itemController="person"}}
+       <div class={{if active "a" "b"}}>
+       </div>
+    {{/each}}
+  </div>
+</div>
+
+{{outlet}}
