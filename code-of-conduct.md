@@ -1,4 +1,4 @@
-This project adheres to the [Q2 Code of Conduct][code-of-conduct]. By participating, you are expected to honor this code.
+This project adheres to the [Q2 Code of Conduct](code-of-conduct.md). By participating, you are expected to honor this code.
 
 This code of conduct outlines our expectations for participants within the **Q2 Software** community, as well as steps to reporting unacceptable behavior. We are committed to providing a welcoming and inspiring community for all and expect our code of conduct to be honored. Anyone who violates this code of conduct may be banned from the community.
 
@@ -11,7 +11,7 @@ Our open source community strives to:
 
 ### Reporting Issues
 
-If you experience or witness unacceptable behavior—or have any other concerns—please report it by contacting us via **[oss.conduct@q2ebanking.com]**. All reports will be handled with discretion. In your report please include:
+If you experience or witness unacceptable behavior—or have any other concerns—please report it by contacting us via **oss.conduct@q2ebanking.com**. All reports will be handled with discretion. In your report please include:
 
 - Your contact information.
 - Names (real, nicknames, or pseudonyms) of any individuals involved. If there are additional witnesses, please

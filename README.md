@@ -42,11 +42,11 @@ npm run cover
 
 ## License
 
-ember-template-rewrite is [Apache 2.0 Licensed](http://bitbucket/projects/EMBER/repos/ember-template-rewrite/browse/LICENSE.md).
+ember-template-rewrite is [Apache 2.0 Licensed](LICENSE.md).
 
 ## Code of Conduct
 
-ember-template-rewrite conforms to [Contributor Code of Conduct](http://bitbucket/projects/OSS/repos/oss-policy/browse/template/code-of-conduct.md).
+ember-template-rewrite conforms to [Contributor Code of Conduct](code-of-conduct.md).
 
 [travis-badge]: https://travis-ci.org/jschilli/ember-cli-dash-docset.svg?branch=master
 [travis-badge-url]: https://travis-ci.org/jschilli/ember-cli-dash-docset
