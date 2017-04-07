@@ -48,5 +48,5 @@ ember-template-rewrite is [Apache 2.0 Licensed](LICENSE.md).
 
 ember-template-rewrite conforms to [Contributor Code of Conduct](code-of-conduct.md).
 
-[travis-badge]: https://travis-ci.org/jschilli/ember-cli-dash-docset.svg?branch=master
-[travis-badge-url]: https://travis-ci.org/jschilli/ember-cli-dash-docset
+[travis-badge]: https://travis-ci.org/q2ebanking/ember-template-rewrite.svg?branch=master
+[travis-badge-url]: https://travis-ci.org/q2ebanking/ember-template-rewrite
