@@ -6,3 +6,4 @@ node_js:
   - "5"
   - "4"
 cache: yarn
+script: npm run cover
