@@ -1,6 +1,6 @@
 {
   "name": "ember-template-rewrite",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A utility for automatically refactoring Ember.js templates.",
   "main": "dist/index.js",
   "repository": {
