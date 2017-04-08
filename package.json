@@ -2,7 +2,7 @@
   "name": "ember-template-rewrite",
   "version": "0.0.2",
   "description": "A utility for automatically refactoring Ember.js templates.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/q2ebanking/ember-template-rewrite"
@@ -23,11 +23,12 @@
   },
   "devDependencies": {
     "assert-diff": "^1.1.0",
-    "mocha": "^3.2.0"
-  },
-  "dependencies": {
     "babel-cli": "7.0.0-alpha.7",
     "babel-preset-es2015": "7.0.0-alpha.7",
+    "mocha": "^3.2.0",
+    "ncp": "^2.0.0"
+  },
+  "dependencies": {
     "broccoli": "^1.1.0",
     "broccoli-funnel": "^1.1.0",
     "broccoli-persistent-filter": "^1.2.13",
@@ -36,7 +37,6 @@
     "deepmerge": "^1.3.1",
     "fs-extra": "^2.0.0",
     "glimmer-engine": "^0.19.3",
-    "ncp": "^2.0.0",
     "pegjs": "^0.10.0",
     "underscore": "^1.8.3"
   }
