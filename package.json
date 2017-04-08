@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository" : {
     "type" : "git",
-    "url" : "ssh://git@bitbucket:7999/ember/ember-template-rewrite.git"
+    "url" : "https://github.com/q2ebanking/ember-template-rewrite"
   },
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --require babel-polyfill --reporter spec --slow 50",
