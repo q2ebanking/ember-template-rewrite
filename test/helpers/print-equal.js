@@ -6,7 +6,7 @@ import preprocess from '../../lib/preprocess';
 function printTransform(template, options) {
   let ast = preprocess(template);
   options = options || {};
-  (options.formulas || []).forEach(f => ast = f(ast, options))
+  (options.formulas || []).forEach(f => ast = f(ast, options));
   return unescape(_print(ast, options));
 }
 
@@ -16,9 +16,9 @@ export function print(ast, options) {
 
 export default function printEqual(input, output, options) {
   try {
-    let actual = printTransform(input, options);
+    const actual = printTransform(input, options);
     assert.equal(actual, output);
-  } catch(e) {
+  } catch (e) {
     console.log(e.stack);
     throw e;
   }
