@@ -1,4 +1,4 @@
-# ember-template-rewrite [![Build Status][travis-badge]][travis-badge-url]
+# ember-template-rewrite [![Build Status][travis-badge]][travis-badge-url] [![Coverage Status][coveralls-badge]][coveralls-badge-url]
 
 A utility for automatically refactoring Ember.js templates.
 
@@ -50,3 +50,5 @@ ember-template-rewrite conforms to [Contributor Code of Conduct](code-of-conduct
 
 [travis-badge]: https://travis-ci.org/q2ebanking/ember-template-rewrite.svg?branch=master
 [travis-badge-url]: https://travis-ci.org/q2ebanking/ember-template-rewrite
+[coveralls-badge]: https://coveralls.io/repos/github/q2ebanking/ember-template-rewrite/badge.svg?branch=master
+[coveralls-badge-url]: https://coveralls.io/github/q2ebanking/ember-template-rewrite?branch=master
