@@ -1,11 +1,11 @@
+import {
+  builders as b,
+} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import assert from '../helpers/assert';
 import repeat from '../../lib/utils/repeat';
 import whitespaceDiff, {
   locToWhitespace,
 } from '../../lib/utils/whitespace-diff';
-import {
-  builders as b,
-} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
 describe('Unit: whitespaceDiff', () => {
   describe('with overlap', () => {

@@ -1,10 +1,8 @@
 import assert from 'assert-diff';
 import {
-  preprocess,
   builders as b,
 } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import _printEqual, {
-  preprocess as p,
 } from '../helpers/print-equal';
 import print from '../../lib/printer';
 

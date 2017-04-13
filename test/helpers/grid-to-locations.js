@@ -5,12 +5,11 @@ export default function gridToLocations(grid) {
   let column = 0;
   let line = 0;
   let read = false;
-  for (const char of grid) {
-    const name = char;
+  [...grid].forEach((char) => {
     if (read && char === ' ') {
-      column++;
+      column += 1;
     } else if (char === '\n') {
-      line++;
+      line += 1;
       column = 0;
       read = false;
     } else if (char === '|') {
@@ -21,10 +20,9 @@ export default function gridToLocations(grid) {
         end: { column, line },
       };
       nodes.push({ name: char, loc });
-      column++;
+      column += 1;
     }
-  }
-  const a = [1, 2, 3];
+  });
   return _.shuffle(nodes);
 }
 

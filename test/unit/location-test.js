@@ -1,12 +1,12 @@
+import {
+  builders as b,
+} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import assert from '../helpers/assert';
 import {
   locDiff,
   posAfter,
   posBefore,
 } from '../../lib/utils/location';
-import {
-  builders as b,
-} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
 describe('Unit: locDiff', () => {
   describe('on the same line', () => {

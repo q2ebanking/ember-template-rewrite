@@ -1,10 +1,9 @@
 import assert from 'assert-diff';
-import _printEqual, {
+import {
   preprocess as p,
   print,
 } from '../helpers/print-equal';
 import { removeNode } from '../../lib/utils/node';
-import { nodeToLabel } from '../helpers/node';
 
 describe('Unit: removeNode', () => {
   it('shifts nodes on the same line to fill in the hole', () => {

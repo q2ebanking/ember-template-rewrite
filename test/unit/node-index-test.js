@@ -1,9 +1,18 @@
 import assert from 'assert-diff';
-import _printEqual, {
+import {
   preprocess as p,
 } from '../helpers/print-equal';
 import { nodeIndex } from '../../lib/utils/node';
 import { nodeToLabel } from '../helpers/node';
+
+function nodeIndexes(...nodes) {
+  const allNodes = nodes.reduce((acc, n) => acc.concat(n), []);
+  return allNodes.reduce((acc, a) => {
+    const key = nodeToLabel(a);
+    acc[key] = nodeIndex(a, ...allNodes);
+    return acc;
+  }, {});
+}
 
 describe('Unit: nodeIndex', () => {
   it('calculates node index in given sorted lists', () => {
@@ -17,12 +26,3 @@ describe('Unit: nodeIndex', () => {
     assert.deepEqual(indexes, { a: 0, 'bind-attr': 1, e: 2 });
   });
 });
-
-function nodeIndexes(...nodes) {
-  nodes = nodes.reduce((acc, n) => acc.concat(n), []);
-  return nodes.reduce((acc, a) => {
-    const key = nodeToLabel(a);
-    acc[key] = nodeIndex(a, ...nodes);
-    return acc;
-  }, {});
-}

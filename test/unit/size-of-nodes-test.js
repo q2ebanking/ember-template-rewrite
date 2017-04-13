@@ -1,10 +1,9 @@
+import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import assert from 'assert-diff';
-import _printEqual, {
+import {
   preprocess as p,
-  print,
 } from '../helpers/print-equal';
 import { sizeOfNodes } from '../../lib/utils/node';
-import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
 describe('Unit: sizeOfNodes', () => {
   it('calculates the min/max line/column for a list of nodes', () => {

@@ -1,12 +1,20 @@
 import assert from 'assert-diff';
 import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
-import { offsetNode } from '../../lib/utils/node';
-import _printEqual, {
+import {
   preprocess as p,
   print,
 } from '../helpers/print-equal';
 import { get } from '../helpers/support';
-import { sortNodes as sort } from '../../lib/utils/node';
+import {
+  sortNodes as sort,
+  offsetNode,
+} from '../../lib/utils/node';
+
+function mapColumns(nodes, path) {
+  return nodes
+    .map(a => get(a, path ? `${path}.loc` : 'loc'))
+    .map(l => [l.start.column, l.end.column]);
+}
 
 describe('Unit: offsetNode', () => {
   describe('no line change', () => {
@@ -60,7 +68,7 @@ describe('Unit: offsetNode', () => {
       //    paths              7-8         19-20  27-28
 
 
-      const actual = offsetNode(cAttr, { column: 2, line: 0 }, { recursive: true });
+      offsetNode(cAttr, { column: 2, line: 0 }, { recursive: true });
 
       assert.deepEqual(program, expected);
       assert.equal(print(program), print(expected));
@@ -86,7 +94,6 @@ describe('Unit: offsetNode', () => {
       //    paths             7-8       17-18    27-28
 
       const node = program.body[0];
-      const cAttr = node.attributes[1];
       const sortedAttrs = sort(node.attributes);
 
       let elCols = mapColumns([node]);
@@ -112,7 +119,7 @@ describe('Unit: offsetNode', () => {
 
       const offset = { column: 2, line: 0 };
       const startingAt = { column: 13, line: 1 };
-      const actual = offsetNode(program, offset, { recursive: true, startingAt });
+      offsetNode(program, offset, { recursive: true, startingAt });
 
       elCols = mapColumns([node]);
       attrCols = mapColumns(sortedAttrs);
@@ -130,9 +137,3 @@ describe('Unit: offsetNode', () => {
     });
   });
 });
-
-function mapColumns(nodes, path) {
-  return nodes
-    .map(a => get(a, path ? `${path}.loc` : 'loc'))
-    .map(l => [l.start.column, l.end.column]);
-}

@@ -5,6 +5,13 @@ import {
 } from '../helpers/print-equal';
 import { offsetNode } from '../../lib/utils/node';
 
+function classConcat(source) {
+  const expected = `<p class="${source}"></p>`;
+  const concat = p(expected).body[0].attributes[0].value;
+  offsetNode(concat, { column: -10, line: 0 }, { recursive: true });
+  return concat.parts;
+}
+
 describe('Unit: classStringParser', () => {
   it('single binding', () => {
     const actual = classStringParser('foo');
@@ -71,19 +78,3 @@ describe('Unit: classStringParser', () => {
     assert.includeDeepMembers(actual, expected);
   });
 });
-
-function classConcat(source) {
-  const expected = `<p class="${source}"></p>`;
-  const concat = p(expected).body[0].attributes[0].value;
-  offsetNode(concat, { column: -10, line: 0 }, { recursive: true });
-  return concat.parts;
-}
-
-function fromClassConcat(parts) {
-  const source = '<p class="{{a}}"></p>';
-  const ast = p(source);
-  const concat = ast.body[0].attributes[0].value;
-  concat.parts = parts;
-  offsetNode(concat, { column: 10, line: 0 }, { recursive: true });
-  return ast;
-}

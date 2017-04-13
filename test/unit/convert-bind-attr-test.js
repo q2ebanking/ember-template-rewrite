@@ -1,14 +1,11 @@
 import assert from '../helpers/assert';
-import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import convertBindAttr, {
   attributeBindingToAttribute,
   removeBindAttr,
 } from '../../lib/formulas/convert-bind-attr';
 import {
-  sortNodes as sort,
   offsetNode,
 } from '../../lib/utils/node';
-import gridToLocations from '../helpers/grid-to-locations';
 import _printEqual, {
   preprocess as p,
 } from '../helpers/print-equal';
@@ -17,6 +14,13 @@ import { nodeToLabel } from '../helpers/node';
 const printEqual = (input, output) => {
   _printEqual(input, output, { formulas: [convertBindAttr] });
 };
+
+function attributes(source) {
+  const expected = `<p ${source}></p>`;
+  const attrs = p(expected).body[0].attributes;
+  offsetNode(attrs, { column: -3, line: 0 }, { recursive: true });
+  return attrs;
+}
 
 describe('Unit: convertBindAttr', () => {
   it('converts class binding', () => {
@@ -223,10 +227,3 @@ describe('Unit: removeBindAttr', () => {
     assert.deepEqual(attrLines(node.attributes), [1, 2, 2]);
   });
 });
-
-function attributes(source) {
-  const expected = `<p ${source}></p>`;
-  const attributes = p(expected).body[0].attributes;
-  offsetNode(attributes, { column: -3, line: 0 }, { recursive: true });
-  return attributes;
-}
