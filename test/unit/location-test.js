@@ -1,190 +1,190 @@
+import {
+  builders as b,
+} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import assert from '../helpers/assert';
 import {
   locDiff,
   posAfter,
-  posBefore
+  posBefore,
 } from '../../lib/utils/location';
-import {
-  builders as b
-} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
-describe('Unit: locDiff', function() {
-  describe('on the same line', function() {
-    it('returns loc that is difference between the inputs', function() {
-      let locA = b.loc(1, 30, 1, 33);
-      let locB = b.loc(1, 30, 1, 39);
-      let actual = locDiff(locA, locB);
-      let expected = b.loc(0, 0, 0, 6);
+describe('Unit: locDiff', () => {
+  describe('on the same line', () => {
+    it('returns loc that is difference between the inputs', () => {
+      const locA = b.loc(1, 30, 1, 33);
+      const locB = b.loc(1, 30, 1, 39);
+      const actual = locDiff(locA, locB);
+      const expected = b.loc(0, 0, 0, 6);
       assert.deepEqual(actual, expected);
     });
   });
 
-  describe('spanning multiple lines', function() {
-    it('returns loc that is difference between the inputs', function() {
-      let locA = b.loc(1, 30, 1, 33);
-      let locB = b.loc(1, 30, 2, 39);
-      let actual = locDiff(locA, locB);
-      let expected = b.loc(0, 0, 1, 6);
+  describe('spanning multiple lines', () => {
+    it('returns loc that is difference between the inputs', () => {
+      const locA = b.loc(1, 30, 1, 33);
+      const locB = b.loc(1, 30, 2, 39);
+      const actual = locDiff(locA, locB);
+      const expected = b.loc(0, 0, 1, 6);
       assert.deepEqual(actual, expected);
     });
   });
 });
 
-describe('Unit: posAfter', function() {
-  describe('on the same line', function() {
-    it('returns true for higher column', function() {
-      let locA = b.loc(1, 30, 1, 39);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = true;
+describe('Unit: posAfter', () => {
+  describe('on the same line', () => {
+    it('returns true for higher column', () => {
+      const locA = b.loc(1, 30, 1, 39);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = true;
       assert.equal(actual, expected);
     });
 
-    it('returns true for same column', function() {
-      let locA = b.loc(1, 30, 1, 38);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = false;
+    it('returns true for same column', () => {
+      const locA = b.loc(1, 30, 1, 38);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = false;
       assert.equal(actual, expected);
     });
 
-    it('returns false for lower column', function() {
-      let locA = b.loc(1, 30, 1, 37);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = false;
-      assert.equal(actual, expected);
-    });
-  });
-
-  describe('on higher line', function() {
-    it('returns true for higher column', function() {
-      let locA = b.loc(1, 30, 2, 39);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = true;
-      assert.equal(actual, expected);
-    });
-
-    it('returns true for same column', function() {
-      let locA = b.loc(1, 30, 2, 38);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = true;
-      assert.equal(actual, expected);
-    });
-
-    it('returns false for lower column', function() {
-      let locA = b.loc(1, 30, 2, 37);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = true;
+    it('returns false for lower column', () => {
+      const locA = b.loc(1, 30, 1, 37);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = false;
       assert.equal(actual, expected);
     });
   });
 
-  describe('on lower line', function() {
-    it('returns false for higher column', function() {
-      let locA = b.loc(1, 30, 1, 39);
-      let locB = b.loc(1, 30, 2, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = false;
+  describe('on higher line', () => {
+    it('returns true for higher column', () => {
+      const locA = b.loc(1, 30, 2, 39);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = true;
       assert.equal(actual, expected);
     });
 
-    it('returns false for same column', function() {
-      let locA = b.loc(1, 30, 1, 38);
-      let locB = b.loc(1, 30, 2, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = false;
+    it('returns true for same column', () => {
+      const locA = b.loc(1, 30, 2, 38);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = true;
       assert.equal(actual, expected);
     });
 
-    it('returns false for lower column', function() {
-      let locA = b.loc(1, 30, 1, 37);
-      let locB = b.loc(1, 30, 2, 38);
-      let actual = posAfter(locA.end, locB.end);
-      let expected = false;
+    it('returns false for lower column', () => {
+      const locA = b.loc(1, 30, 2, 37);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = true;
+      assert.equal(actual, expected);
+    });
+  });
+
+  describe('on lower line', () => {
+    it('returns false for higher column', () => {
+      const locA = b.loc(1, 30, 1, 39);
+      const locB = b.loc(1, 30, 2, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = false;
+      assert.equal(actual, expected);
+    });
+
+    it('returns false for same column', () => {
+      const locA = b.loc(1, 30, 1, 38);
+      const locB = b.loc(1, 30, 2, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = false;
+      assert.equal(actual, expected);
+    });
+
+    it('returns false for lower column', () => {
+      const locA = b.loc(1, 30, 1, 37);
+      const locB = b.loc(1, 30, 2, 38);
+      const actual = posAfter(locA.end, locB.end);
+      const expected = false;
       assert.equal(actual, expected);
     });
   });
 });
 
-describe('Unit: posBefore', function() {
-  describe('on the same line', function() {
-    it('returns false for higher column', function() {
-      let locA = b.loc(1, 30, 1, 39);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = false;
+describe('Unit: posBefore', () => {
+  describe('on the same line', () => {
+    it('returns false for higher column', () => {
+      const locA = b.loc(1, 30, 1, 39);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = false;
       assert.equal(actual, expected);
     });
 
-    it('returns false for same column', function() {
-      let locA = b.loc(1, 30, 1, 38);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = false;
+    it('returns false for same column', () => {
+      const locA = b.loc(1, 30, 1, 38);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = false;
       assert.equal(actual, expected);
     });
 
-    it('returns true for lower column', function() {
-      let locA = b.loc(1, 30, 1, 37);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = true;
-      assert.equal(actual, expected);
-    });
-  });
-
-  describe('on higher line', function() {
-    it('returns false for higher column', function() {
-      let locA = b.loc(1, 30, 2, 39);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = false;
-      assert.equal(actual, expected);
-    });
-
-    it('returns false for same column', function() {
-      let locA = b.loc(1, 30, 2, 38);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = false;
-      assert.equal(actual, expected);
-    });
-
-    it('returns false for lower column', function() {
-      let locA = b.loc(1, 30, 2, 37);
-      let locB = b.loc(1, 30, 1, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = false;
+    it('returns true for lower column', () => {
+      const locA = b.loc(1, 30, 1, 37);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = true;
       assert.equal(actual, expected);
     });
   });
 
-  describe('on lower line', function() {
-    it('returns true for higher column', function() {
-      let locA = b.loc(1, 30, 1, 39);
-      let locB = b.loc(1, 30, 2, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = true;
+  describe('on higher line', () => {
+    it('returns false for higher column', () => {
+      const locA = b.loc(1, 30, 2, 39);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = false;
       assert.equal(actual, expected);
     });
 
-    it('returns true for same column', function() {
-      let locA = b.loc(1, 30, 1, 38);
-      let locB = b.loc(1, 30, 2, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = true;
+    it('returns false for same column', () => {
+      const locA = b.loc(1, 30, 2, 38);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = false;
       assert.equal(actual, expected);
     });
 
-    it('returns true for lower column', function() {
-      let locA = b.loc(1, 30, 1, 37);
-      let locB = b.loc(1, 30, 2, 38);
-      let actual = posBefore(locA.end, locB.end);
-      let expected = true;
+    it('returns false for lower column', () => {
+      const locA = b.loc(1, 30, 2, 37);
+      const locB = b.loc(1, 30, 1, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = false;
+      assert.equal(actual, expected);
+    });
+  });
+
+  describe('on lower line', () => {
+    it('returns true for higher column', () => {
+      const locA = b.loc(1, 30, 1, 39);
+      const locB = b.loc(1, 30, 2, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = true;
+      assert.equal(actual, expected);
+    });
+
+    it('returns true for same column', () => {
+      const locA = b.loc(1, 30, 1, 38);
+      const locB = b.loc(1, 30, 2, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = true;
+      assert.equal(actual, expected);
+    });
+
+    it('returns true for lower column', () => {
+      const locA = b.loc(1, 30, 1, 37);
+      const locB = b.loc(1, 30, 2, 38);
+      const actual = posBefore(locA.end, locB.end);
+      const expected = true;
       assert.equal(actual, expected);
     });
   });

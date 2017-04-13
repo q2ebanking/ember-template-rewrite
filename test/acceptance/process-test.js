@@ -1,56 +1,53 @@
-import assert from 'assert-diff';
-import process from '../../lib/process';
 import path from 'path';
 import fs from 'fs';
+import assert from 'assert-diff';
+import process from '../../lib/process';
 
 const fixturePath = path.join(__dirname, '../fixtures');
 
 function read({ formula, scenario, file }) {
-  let beforePath = path.join(fixturePath, formula, `${scenario}-before`, file);
-  let afterPath = path.join(fixturePath, formula, `${scenario}-after`, file);
-  let input = fs.readFileSync(beforePath, { encoding: 'utf8' });
-  let output = fs.readFileSync(afterPath, { encoding: 'utf8' });
+  const beforePath = path.join(fixturePath, formula, `${scenario}-before`, file);
+  const afterPath = path.join(fixturePath, formula, `${scenario}-after`, file);
+  const input = fs.readFileSync(beforePath, { encoding: 'utf8' });
+  const output = fs.readFileSync(afterPath, { encoding: 'utf8' });
   return { input, output };
 }
 
-describe('Acceptance: process', function() {
+describe('Acceptance: process', () => {
+  describe('bind-attr', () => {
+    const formula = 'bind-attr';
 
-  describe('bind-attr', function() {
-
-    let formula = 'bind-attr';
-
-    it('converts static bindings', function() {
-      let { input, output: expected } = read({
+    it('converts static bindings', () => {
+      const { input, output: expected } = read({
         formula,
         scenario: 'app-with-static',
-        file: 'app/templates/application.hbs'
+        file: 'app/templates/application.hbs',
       });
-      let actual = process(input, { formulas: ['convert-bind-attr'] });
+      const actual = process(input, { formulas: ['convert-bind-attr'] });
       assert.equal(actual, expected);
     });
 
-    it('converts multiline mustache', function() {
-      let { input, output } = read({
+    it('converts multiline mustache', () => {
+      const { input, output } = read({
         formula,
         scenario: 'app-with-multiline-bind-attr',
-        file: 'app/templates/application.hbs'
+        file: 'app/templates/application.hbs',
       });
-      let actual = process(input, { formulas: ['convert-bind-attr'] });
+      const actual = process(input, { formulas: ['convert-bind-attr'] });
       assert.equal(actual, output);
     });
   });
 
-  describe('each-in', function() {
+  describe('each-in', () => {
+    const formula = 'each-in';
 
-    let formula = 'each-in';
-
-    it('converts each-in with multiline program', function() {
-      let { input, output: expected } = read({
+    it('converts each-in with multiline program', () => {
+      const { input, output: expected } = read({
         formula,
         scenario: 'app-with-multiline-each-in',
-        file: 'app/templates/application.hbs'
+        file: 'app/templates/application.hbs',
       });
-      let actual = process(input, { formulas: ['convert-each-in'] });
+      const actual = process(input, { formulas: ['convert-each-in'] });
       assert.equal(actual, expected);
     });
   });

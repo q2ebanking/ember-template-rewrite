@@ -4,10 +4,10 @@ import _print from '../../lib/printer';
 import preprocess from '../../lib/preprocess';
 
 function printTransform(template, options) {
-  let ast = preprocess(template);
-  options = options || {};
-  (options.formulas || []).forEach(f => ast = f(ast, options))
-  return unescape(_print(ast, options));
+  const opts = options || {};
+  const formulas = opts.formulas || [];
+  const ast = formulas.reduce((inputAst, f) => f(inputAst, opts), preprocess(template));
+  return unescape(_print(ast, opts));
 }
 
 export function print(ast, options) {
@@ -15,13 +15,8 @@ export function print(ast, options) {
 }
 
 export default function printEqual(input, output, options) {
-  try {
-    let actual = printTransform(input, options);
-    assert.equal(actual, output);
-  } catch(e) {
-    console.log(e.stack);
-    throw e;
-  }
+  const actual = printTransform(input, options);
+  assert.equal(actual, output);
 }
 
 export { preprocess };

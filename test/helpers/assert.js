@@ -1,9 +1,11 @@
 import assert from 'assert-diff';
 import merge from 'deepmerge';
 
-assert.includeDeepMembers = assert.includeDeepMembers || function(actual, expected) {
-  expected = merge(actual, expected);
-  assert.deepEqual(actual, expected);
-};
+function includeDeepMembers(actual, expected) {
+  const fullExpected = merge(actual, expected);
+  assert.deepEqual(actual, fullExpected);
+}
+
+assert.includeDeepMembers = assert.includeDeepMembers || includeDeepMembers;
 
 export default assert;
