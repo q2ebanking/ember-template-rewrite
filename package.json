@@ -16,7 +16,8 @@
     "test": "npm run lint && npm run spec",
     "spec": "mocha --compilers js:babel-register --require babel-polyfill --reporter spec --slow 50",
     "tdd": "npm spec -- -w",
-    "cover": "nyc --reporter=html --reporter=text mocha --compilers js:babel-register --require babel-polyfill"
+    "cover": "nyc --reporter=html mocha --compilers js:babel-register --require babel-polyfill",
+    "coverCI": "nyc npm run cover && nyc report --reporter=text-lcov --compilers js:babel-register --require babel-polyfill | coveralls"
   },
   "author": "Chase McCarthy",
   "license": "Apache-2.0",
@@ -28,6 +29,7 @@
     "babel-cli": "7.0.0-alpha.7",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "7.0.0-alpha.7",
+    "coveralls": "^2.13.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.1.3",
     "eslint-plugin-import": "^2.2.0",

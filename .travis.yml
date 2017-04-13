@@ -5,4 +5,4 @@ node_js:
   - "6"
   - "5"
 cache: yarn
-script: npm run cover
+script: npm run coverCI
