@@ -40,6 +40,14 @@ or with test coverage
 npm run cover
 ```
 
+## Publishing
+
+Use [release-it](https://github.com/webpro/release-it) to cut a version:
+
+```
+release-it
+```
+
 ## License
 
 ember-template-rewrite is [Apache 2.0 Licensed](LICENSE.md).
