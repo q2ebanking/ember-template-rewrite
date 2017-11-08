@@ -17,8 +17,7 @@ function nodeIndexes(...nodes) {
 describe('Unit: nodeIndex', () => {
   it('calculates node index in given sorted lists', () => {
     const node = p('<p a="b" {{bind-attr c=d}} e="f"></p>').body[0];
-    const modifiers = node.modifiers;
-    const attributes = node.attributes;
+    const { modifiers, attributes } = node;
     let indexes;
     indexes = nodeIndexes(modifiers, attributes);
     assert.deepEqual(indexes, { a: 0, 'bind-attr': 1, e: 2 });

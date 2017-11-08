@@ -143,7 +143,7 @@ describe('Unit: removeBindAttr', () => {
   it('removes bind-attr modifier', () => {
     const ast = p('<p {{bind-attr a=b}}></p>');
     const node = ast.body[0];
-    const modifiers = node.modifiers;
+    const { modifiers } = node;
     const modifier = modifiers[0];
 
     removeBindAttr(modifier, node, ast);
@@ -154,7 +154,7 @@ describe('Unit: removeBindAttr', () => {
   it('inserts new attributes', () => {
     const ast = p('<p {{bind-attr a=b}}></p>');
     const node = ast.body[0];
-    const modifiers = node.modifiers;
+    const { modifiers } = node;
     const modifier = modifiers[0];
     assert.equal(node.attributes.length, 0);
 
@@ -176,7 +176,7 @@ describe('Unit: removeBindAttr', () => {
   it('places new attributes in the right order', () => {
     const ast = p('<p a="b" {{bind-attr c=d}} e="f"></p>');
     const node = ast.body[0];
-    const modifiers = node.modifiers;
+    const { modifiers } = node;
     const modifier = modifiers[0];
     let attrOrder;
     // <p a="b" {{bind-attr c=d}} e="f"></p>
@@ -193,7 +193,7 @@ describe('Unit: removeBindAttr', () => {
   it('shifts locations of following attributes', () => {
     const ast = p('<p a="b" {{bind-attr c=d}} e="f"></p>');
     const node = ast.body[0];
-    const modifiers = node.modifiers;
+    const { modifiers } = node;
     const modifier = modifiers[0];
     // <p a="b" {{bind-attr c=d}} e="f"></p>
     //   ^     ^                ^^
@@ -210,7 +210,7 @@ describe('Unit: removeBindAttr', () => {
   it('shifts multiline attributes up', () => {
     const ast = p('<p {{bind-attr\n   c=d\n   e="f"}} g="h"></p>');
     const node = ast.body[0];
-    const modifiers = node.modifiers;
+    const { modifiers } = node;
     const modifier = modifiers[0];
     // <p {{bind-attr\n   c=d\n   e="f"}} g="h"></p>
     // ^  ^            ^  ^       ^       ^

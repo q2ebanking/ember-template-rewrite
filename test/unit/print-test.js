@@ -241,8 +241,10 @@ describe('Unit: print', () => {
   });
 
   it('configures single quotes for mustache blocks', () => {
-    printEqual('<a id="id" {{action \'foo\'}}>' +
+    printEqual(
+      '<a id="id" {{action \'foo\'}}>' +
                '{{#foo bar=\'bar\' as |a|}}{{/foo}}</a>',
-      { quotes: { mustache: "'" } });
+      { quotes: { mustache: "'" } },
+    );
   });
 });
