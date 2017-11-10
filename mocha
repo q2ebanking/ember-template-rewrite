@@ -1,2 +1,2 @@
 #!/bin/sh
-./node_modules/.bin/mocha --compilers js:babel-register --require babel-polyfill --reporter spec --slow 50 $@
+./node_modules/.bin/mocha --compilers js:@babel/register --require @babel/polyfill --reporter spec --slow 50 $@
