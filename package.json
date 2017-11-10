@@ -14,10 +14,10 @@
     "build": "npm run babel && npm run copy",
     "prepublish": "npm run build",
     "test": "npm run lint && npm run spec",
-    "spec": "mocha --compilers js:babel-register --require babel-polyfill --reporter spec --slow 50",
+    "spec": "./mocha",
     "tdd": "npm run spec -- -w",
-    "cover": "nyc --reporter=html mocha --compilers js:babel-register --require babel-polyfill",
-    "coverCI": "nyc npm run cover && nyc report --reporter=text-lcov --compilers js:babel-register --require babel-polyfill | coveralls"
+    "cover": "nyc --reporter=html ./mocha",
+    "coverCI": "nyc npm run cover && nyc report --reporter=text-lcov | coveralls"
   },
   "author": "Chase McCarthy",
   "license": "Apache-2.0",
