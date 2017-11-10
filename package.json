@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "eslint lib test bin",
-    "babel": "babel . -d dist --ignore node_modules --ignore test --ignore bin --ignore dist",
+    "babel": "babel . -d dist --ignore node_modules --ignore test --ignore bin --ignore dist --ignore coverage",
     "copy": "ncp lib/preprocessor.pegjs dist/lib/preprocessor.pegjs && ncp package.json dist/package.json",
     "build": "npm run babel && npm run copy",
     "prepublish": "npm run build",
