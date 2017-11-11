@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha';
 import assert from 'assert-diff';
 import {
   builders as b,
@@ -172,7 +173,7 @@ describe('Unit: print', () => {
     printEqual('&times;');
   });
 
-  xit('preserves binary attributes', () => {
+  it.skip('preserves binary attributes', () => {
     printEqual('<p selected></p><input disabled />');
   });
 
@@ -189,11 +190,11 @@ describe('Unit: print', () => {
     `);
   });
 
-  xit('preserves chained else if', () => {
+  it.skip('preserves chained else if', () => {
     printEqual('{{#each foo as |f|}}{{foo}}{{else if bar}}{{bar}}{{/each}}');
   });
 
-  xit('preserves else if', () => {
+  it.skip('preserves else if', () => {
     printEqual('{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}');
   });
 
@@ -217,7 +218,7 @@ describe('Unit: print', () => {
     printEqual('{{foo\n  bar=bar\n}}');
   });
 
-  xit('preserves multiple class if statements', () => {
+  it.skip('preserves multiple class if statements', () => {
     printEqual('<div class="{{if foo "a" "b"}} selected {{if bar "c"}}"></div>');
   });
 
@@ -236,7 +237,7 @@ describe('Unit: print', () => {
     printEqual('<div\n   foo="bar"\n   baz="qux"></div>');
   });
 
-  xit('preserves whitespace between block params', () => {
+  it.skip('preserves whitespace between block params', () => {
     printEqual('{{#foo bar=bar as | a b |}}{{/foo}}');
   });
 

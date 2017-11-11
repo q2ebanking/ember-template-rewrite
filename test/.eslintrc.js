@@ -1,9 +1,11 @@
 module.exports = {
-    "extends": "airbnb-base",
-    "plugins": [
-      "import"
-    ],
-    "env": {
-      "mocha": true
-    }
+  extends: '../.eslintrc.js',
+  rules: {
+    'prefer-destructuring': ['error', {
+      VariableDeclarator: {
+        array: false,
+        object: false,
+      },
+    }],
+  },
 };

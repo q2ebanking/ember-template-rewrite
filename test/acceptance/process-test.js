@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import assert from 'assert-diff';
+import { describe, it } from 'mocha';
 import process from '../../lib/process';
 
 const fixturePath = path.join(__dirname, '../fixtures');

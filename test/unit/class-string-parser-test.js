@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha';
 import assert from '../helpers/assert';
 import classStringParser from '../../lib/class-string-parser';
 import {

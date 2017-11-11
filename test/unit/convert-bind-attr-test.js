@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha';
 import assert from '../helpers/assert';
 import convertBindAttr, {
   attributeBindingToAttribute,
@@ -121,7 +122,7 @@ describe('Unit: convertBindAttr', () => {
     printEqual(input, output);
   });
 
-  xit('converts with no space between modifier', () => {
+  it.skip('converts with no space between modifier', () => {
     const input = '<div test-id="btnManageLabels"{{bind-attr class="" title=title}} {{action "manageLabels"}}></div>';
     const output = '<div test-id="btnManageLabels"class="" title={{title}} {{action "manageLabels"}}></div>';
     printEqual(input, output);

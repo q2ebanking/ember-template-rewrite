@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha';
 import assert from 'assert-diff';
 import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import {

@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha';
 import {
   builders as b,
 } from 'glimmer-engine/dist/node_modules/glimmer-syntax';

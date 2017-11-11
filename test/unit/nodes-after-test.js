@@ -1,3 +1,4 @@
+import { describe, it } from 'mocha';
 import assert from 'assert-diff';
 import gridToLocations from '../helpers/grid-to-locations';
 import { nodesAfter } from '../../lib/utils/node';
