@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "ember-template-rewrite/*": [
+        "./lib/*"
+      ],
+      "test": [
+        "./test/*"
+      ]
+    },
+    "lib": ["es6", "es2017.object"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true
+  },
+  "include": [
+    "./"
+    ]
+}
+
