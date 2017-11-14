@@ -1,4 +1,5 @@
 import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
+import * as _values from 'object.values';
 import * as _ from 'underscore';
 import {
   locAdd,
@@ -13,6 +14,8 @@ interface IOffsetOptions {
   both?: boolean;
   recursive?: boolean;
 }
+
+const values = _values.default || _values;
 
 const defaultOffsetOptions = {
   both: false,
@@ -158,7 +161,7 @@ function offsetNodeRecursive(node, offset: IPosition, options: IOffsetOptions = 
   if (node.loc) {
     performOffset(node, offset, options);
   }
-  Object.values(node).forEach((val) => {
+  values(node).forEach((val) => {
     if (val && val.type) {
       offsetNodeRecursive(val, offset, options);
     } else if (Array.isArray(val)) {
