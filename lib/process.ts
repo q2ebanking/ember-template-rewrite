@@ -5,6 +5,13 @@ import convertEachIn from './formulas/convert-each-in';
 import preprocess from './preprocess';
 import print from './printer';
 
+export interface IProcessOptions {
+  formulas?: any[];
+  quotes?: {
+    mustache: string;
+  };
+}
+
 const plugins = {
   'convert-bind-attr': convertBindAttr,
   'convert-bindings': convertBindings,
@@ -21,8 +28,8 @@ function transform(ast, formulas) {
   return ast;
 }
 
-export default function process(template, options = { formulas: [] }) {
+export default function process(template, options: IProcessOptions = { formulas: [] }) {
   const ast = preprocess(template);
   transform(ast, options.formulas);
-  return unescape(print(ast));
+  return unescape(print(ast, options));
 }

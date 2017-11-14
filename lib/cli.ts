@@ -55,6 +55,8 @@ program
 program
   .command('rewrite <path>')
   .description('Parse and print. Ideally a noop but will restyle currenly.')
+  .option('--single-quote-mustache', 'single quotes in mustache expressions')
+  .option('--double-quote-mustache', 'double quotes in mustache expressions (default)')
   .action((path, options) => {
     const outputPath = path || 'app/templates';
     const mustacheQuote = options.singleQuoteMustache ? "'" : '"';
