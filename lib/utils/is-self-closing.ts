@@ -1,4 +1,4 @@
-const selfClosing = [
+export const tags = [
   'area',
   'base',
   'br',
@@ -19,5 +19,5 @@ const selfClosing = [
 ];
 
 export default function isSelfClosing(tag) {
-  return selfClosing.indexOf(tag) !== -1;
+  return tags.indexOf(tag) !== -1;
 }

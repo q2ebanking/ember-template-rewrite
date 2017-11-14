@@ -114,6 +114,11 @@ function locSpan(loc: ILocation): IPosition {
   };
 }
 
+function posEqual(a: IPosition, b: IPosition): boolean {
+  return a.line === b.line &&
+         a.column === b.column;
+}
+
 export {
   locDiff,
   locAdd,
@@ -128,4 +133,5 @@ export {
   addOffsets,
   locsOverlap,
   posAppend,
+  posEqual,
 };

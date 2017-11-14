@@ -173,7 +173,7 @@ describe('Unit: print', () => {
     printEqual('&times;');
   });
 
-  it.skip('preserves binary attributes', () => {
+  it('preserves binary attributes', () => {
     printEqual('<p selected></p><input disabled />');
   });
 
@@ -260,5 +260,17 @@ describe('Unit: print', () => {
                '{{#foo bar=\'bar\' as |a|}}{{/foo}}</a>',
       { quotes: { mustache: "'" } },
     );
+  });
+
+  it('preserves slash in self closing tag', () => {
+    printEqual('<img src={{src}} />');
+  });
+
+  it('preserves <br/>', () => {
+    printEqual('<br/>');
+  });
+
+  it.skip('preserves slash in invalid self closing tag', () => {
+    printEqual('<span />');
   });
 });

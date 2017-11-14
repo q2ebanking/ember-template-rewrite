@@ -4,6 +4,7 @@ import escapeHTML from './utils/escape-html';
 import isSelfClosing from './utils/is-self-closing';
 import {
   posAppend,
+  posEqual,
   IPosition,
 } from './utils/location';
 import {
@@ -142,7 +143,21 @@ function build(ast, cursor: IPosition, options) {
 
       output.push('>');
       cursor = posAppend(cursor, { column: 1 }); // >
-      if (!selfClosing) {
+
+      if (selfClosing) {
+
+        if (ast.loc) {
+          const contentEnd = {
+            column: ast.loc.end.column - 1, // >
+            line: ast.loc.end.line,
+          };
+
+          const whitespace = whitespacePosDiff(cursor, contentEnd);
+          cursor = ast.loc.end;
+          output.push(whitespace);
+        }
+
+      } else {
         const { output: children, cursor: childCursor } = buildEach(ast.children, cursor, options);
         output.push(...children);
         output.push('</', ast.tag, '>');
@@ -152,14 +167,20 @@ function build(ast, cursor: IPosition, options) {
     }
 
     case 'AttrNode': {
-      output.push(ast.name, '=');
-      cursor = posAppend(cursor, { column: ast.name.length + 1 });
-      if (ast.value.type === 'TextNode') {
-        ast.value.quotes = true;
+      const valueLoc = ast.value.loc;
+      if (valueLoc && posEqual(valueLoc.start, valueLoc.end)) {
+        output.push(ast.name);
+        cursor = posAppend(cursor, { column: ast.name.length + 1 });
+      } else {
+        output.push(ast.name, '=');
+        cursor = posAppend(cursor, { column: ast.name.length + 1 });
+        if (ast.value.type === 'TextNode') {
+          ast.value.quotes = true;
+        }
+        const { output: valueOutput, cursor: attrCursor } = build(ast.value, cursor, options);
+        cursor = attrCursor;
+        output.push(...valueOutput);
       }
-      const { output: valueOutput, cursor: attrCursor } = build(ast.value, cursor, options);
-      cursor = attrCursor;
-      output.push(...valueOutput);
       break;
     }
 
