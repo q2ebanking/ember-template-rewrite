@@ -25,7 +25,7 @@ function pushText(value, column, nodes) {
   return columnEnd;
 }
 
-export default function(classString, options = {}) {
+export default function(classString) {
   const parts = (classString || '').split(/(\S+\s+)/).filter((s) => s);
   let node;
   let column = 0;

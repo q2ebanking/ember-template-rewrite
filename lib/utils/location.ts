@@ -1,12 +1,21 @@
 import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 
-function posAfter(a, b) {
-  const lineDiff = a.line - b.line;
-  const colDiff = a.column - b.column;
-  return lineDiff === 0 ? colDiff > 0 : lineDiff > 0;
+export interface IPosition {
+  line: number;
+  column: number;
 }
 
-function addOffsets(a, b) {
+export interface IPositionOptional {
+  line?: number;
+  column?: number;
+}
+
+export interface ILocation {
+  start: IPosition;
+  end: IPosition;
+}
+
+function addOffsets(a: IPosition, b: IPosition): IPosition {
   return {
     column: a.column + b.column,
     line: a.line + b.line,
@@ -16,7 +25,7 @@ function addOffsets(a, b) {
 // Start point diff and end point diff
 // Useful to tell how a new location
 // varies from old loation
-function locDiff(a, b) {
+function locDiff(a: ILocation, b: ILocation): ILocation {
   return builders.loc(
     b.start.line - a.start.line,
     b.start.column - a.start.column,
@@ -25,7 +34,7 @@ function locDiff(a, b) {
   );
 }
 
-function locAdd(a, b) {
+function locAdd(a: ILocation, b: ILocation): ILocation {
   return builders.loc(
     b.start.line + a.start.line,
     b.start.column + a.start.column,
@@ -34,14 +43,14 @@ function locAdd(a, b) {
   );
 }
 
-function locOffset(a, b) {
+function locOffset(a: ILocation, b: ILocation): IPosition {
   return {
     column: b.start.column - a.end.column,
     line: b.start.line - a.end.line,
   };
 }
 
-function locAppend(startOrEnd, offset) {
+function locAppend(startOrEnd: IPosition, offset: IPositionOptional): ILocation {
   return builders.loc(
     startOrEnd.line,
     startOrEnd.column,
@@ -50,21 +59,34 @@ function locAppend(startOrEnd, offset) {
   );
 }
 
-function locStartsAfter(a, b) {
+function posAppend(startOrEnd: IPosition, offset: IPositionOptional): IPosition {
+  return {
+    column: startOrEnd.column + (offset.column || 0),
+    line: startOrEnd.line + (offset.line || 0),
+  };
+}
+
+function locStartsAfter(a: ILocation, b: IPosition): boolean {
   return posAfter(a.start, b);
 }
 
-function locEndsAfter(a, b) {
+function locEndsAfter(a: ILocation, b: IPosition): boolean {
   return posAfter(a.end, b);
 }
 
-function posBefore(a, b) {
+function posAfter(a: IPosition, b: IPosition): boolean {
+  const lineDiff = a.line - b.line;
+  const colDiff = a.column - b.column;
+  return lineDiff === 0 ? colDiff > 0 : lineDiff > 0;
+}
+
+function posBefore(a: IPosition, b: IPosition): boolean {
   const lineDiff = a.line - b.line;
   const colDiff = a.column - b.column;
   return lineDiff === 0 ? colDiff < 0 : lineDiff < 0;
 }
 
-function locContains(a, b) {
+function locContains(a: ILocation, b: IPosition): boolean {
   const startCol = a.start.column;
   const endCol = a.end.column;
   const { column } = b;
@@ -72,20 +94,20 @@ function locContains(a, b) {
   return lineDiff === 0 && startCol < column && endCol >= column;
 }
 
-function locsEqual(a, b) {
+function locsEqual(a: ILocation, b: ILocation): boolean {
   return a.start.line === b.start.line &&
          a.start.column === b.start.column &&
          a.end.line === b.end.line &&
          a.end.column === b.end.column;
 }
 
-function locsOverlap(a, b) {
+function locsOverlap(a: ILocation, b: ILocation): boolean {
   return locContains(a, b.start) ||
          locContains(a, b.end) ||
          locsEqual(a, b);
 }
 
-function locSpan(loc) {
+function locSpan(loc: ILocation): IPosition {
   return {
     column: loc.end.column - loc.start.column,
     line: loc.end.line - loc.start.line,
@@ -105,4 +127,5 @@ export {
   locSpan,
   addOffsets,
   locsOverlap,
+  posAppend,
 };

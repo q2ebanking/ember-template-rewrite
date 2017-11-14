@@ -25,7 +25,7 @@ function isClassBinding(pair) {
 
 function classBindingToAttribute(pair) {
   const classString = pair.value.value;
-  const nodes = classStringParser(classString, { spaces: true });
+  const nodes = classStringParser(classString);
   const size = sizeOfNodes(nodes);
   let node;
 
@@ -35,15 +35,27 @@ function classBindingToAttribute(pair) {
   } else {
     node = builders.concat(nodes);
     quoteSize = 2;
+    node.loc = builders.loc(
+      1,
+      0,
+      1 + size.line,
+      size.column - 1 + quoteSize,
+    );
   }
+
+  offsetNode(node, {
+    column: 6, // class=
+    line: 0,
+  }, { recursive: true });
 
   const loc = builders.loc(
     1,
     0,
-    1 + size.line,
-    size.column + 6 + quoteSize + 1, // "class=" 6
+    node.loc.end.line,
+    node.loc.end.column,
   );
-  return builders.attr('class', node, loc);
+  const attr = builders.attr('class', node, loc);
+  return attr;
 }
 
 function attributeBindingToAttribute(pair) {

@@ -4,9 +4,7 @@ import {
 import assert from 'test/helpers/assert';
 
 import repeat from 'ember-template-rewrite/utils/repeat';
-import whitespaceDiff, {
-  locToWhitespace,
-} from 'ember-template-rewrite/utils/whitespace-diff';
+import whitespaceDiff from 'ember-template-rewrite/utils/whitespace-diff';
 
 describe('Unit: whitespaceDiff', () => {
   describe('with overlap', () => {
@@ -59,17 +57,6 @@ describe('Unit: whitespaceDiff', () => {
       const locB = b.loc(3, 15, 4, 3);
       const actual = whitespaceDiff(locA, locB);
       const expected = `\n${repeat(' ', 15)}`;
-      assert.equal(actual, expected);
-    });
-  });
-});
-
-describe('Unit: locToWhitespace', () => {
-  describe('with overlap', () => {
-    it('on same line', () => {
-      const loc = b.loc(1, 3, 3, 4);
-      const actual = locToWhitespace(loc);
-      const expected = `\n\n${repeat(' ', 4)}`;
       assert.equal(actual, expected);
     });
   });

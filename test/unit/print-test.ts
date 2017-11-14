@@ -190,12 +190,16 @@ describe('Unit: print', () => {
     `);
   });
 
-  it.skip('preserves chained else if', () => {
+  it('preserves chained else if', () => {
     printEqual('{{#each foo as |f|}}{{foo}}{{else if bar}}{{bar}}{{/each}}');
   });
 
-  it.skip('preserves else if', () => {
+  it('preserves else if', () => {
     printEqual('{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}');
+  });
+
+  it.skip('preserves multiple else ifs', () => {
+    printEqual('{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{else if baz}}{{baz}}{{/if}}');
   });
 
   it('preserves action position in attributes', () => {
@@ -218,7 +222,7 @@ describe('Unit: print', () => {
     printEqual('{{foo\n  bar=bar\n}}');
   });
 
-  it.skip('preserves multiple class if statements', () => {
+  it('preserves multiple class if statements', () => {
     printEqual('<div class="{{if foo "a" "b"}} selected {{if bar "c"}}"></div>');
   });
 
@@ -230,6 +234,15 @@ describe('Unit: print', () => {
       {{why.would.you.doThis
 
         }}
+    `);
+  });
+
+  it('preserves newline and spaces in mustache block', () => {
+    printEqual(`
+      {{#foo
+        bar=bar
+      }}
+       {{/foo}}
     `);
   });
 

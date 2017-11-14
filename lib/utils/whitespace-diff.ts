@@ -1,11 +1,8 @@
-import { locsOverlap } from './location';
+import { locsOverlap, posAfter, IPosition, ILocation } from './location';
 import repeat from './repeat';
 
-export default function whitespaceDiff(a, b) {
+export default function whitespaceDiff(a: ILocation, b: ILocation): string {
   const whitespace = [];
-  if (!a || !b) {
-    throw Error('Must provide two locations to whitespaceDiff');
-  }
   if (locsOverlap(a, b)) {
     return '';
   }
@@ -20,17 +17,17 @@ export default function whitespaceDiff(a, b) {
   return whitespace.join('');
 }
 
-export function locToWhitespace(loc) {
+export function whitespacePosDiff(a: IPosition, b: IPosition): string {
   const whitespace = [];
-  if (!loc) {
-    throw Error('Must provide a location to locToWhitespace');
+  if (posAfter(a, b)) {
+    return '';
   }
-  const rowDiff = loc.end.line - loc.start.line;
+  const rowDiff = b.line - a.line;
   whitespace.push(repeat('\n', rowDiff));
   if (rowDiff > 0) {
-    whitespace.push(repeat(' ', loc.end.column));
+    whitespace.push(repeat(' ', b.column));
   } else {
-    const colDiff = loc.end.column - loc.start.column;
+    const colDiff = b.column - a.column;
     whitespace.push(repeat(' ', colDiff));
   }
   return whitespace.join('');

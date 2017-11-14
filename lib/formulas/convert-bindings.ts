@@ -2,6 +2,9 @@ import {
   builders,
   Walker,
 } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
+import {
+  offsetNode,
+} from '../utils/node';
 
 function isBinding(node) {
   return node.key.match(/Binding$/);
@@ -20,6 +23,15 @@ export default function convertEachIn(ast) {
         if (isBinding(p) && !isClassBinding(p)) {
           p.key = p.key.replace(/Binding$/, '');
           p.value = builders.path(p.value.value);
+          const offset = {
+            column: -'Binding'.length - 2, // 2 = quotes
+            line: 0,
+          };
+          const start = {
+            column:  p.loc.start.column + p.key.length,
+            line: p.loc.start.line,
+          };
+          offsetNode(ast, offset, { recursive: true, startingAt: start });
         }
       });
     }

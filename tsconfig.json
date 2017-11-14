@@ -8,17 +8,18 @@
     },
     "lib": ["es6", "es2017.object"],
     "module": "commonjs",
-    "moduleResolution": "node",
     "removeComments": true,
-    "preserveConstEnums": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "sourceMap": true
   },
   "include": [
     "lib/**/*",
     "test/**/*"
-    ],
-    "exclude": [
-      "node_modules"
-    ]
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
 

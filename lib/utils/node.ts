@@ -5,6 +5,7 @@ import {
   locSpan,
   posAfter,
   posBefore,
+  IPosition,
 } from './location';
 
 interface IOffsetOptions {
@@ -92,7 +93,7 @@ function enumerate(node, func, options = {}) {
   return node;
 }
 
-function performOffset(node, offset, options) {
+function performOffset(node, offset: IPosition, options) {
   if (!node || !node.loc) {
     throw new Error('performOffset must be given a node with a loc');
   }
@@ -150,7 +151,7 @@ function performOffset(node, offset, options) {
   return node;
 }
 
-function offsetNodeRecursive(node, offset, options: IOffsetOptions = defaultOffsetOptions) {
+function offsetNodeRecursive(node, offset: IPosition, options: IOffsetOptions = defaultOffsetOptions) {
   if (!node) {
     return node;
   }
@@ -167,7 +168,7 @@ function offsetNodeRecursive(node, offset, options: IOffsetOptions = defaultOffs
   return node;
 }
 
-function offsetNode(node, offset, options: IOffsetOptions = defaultOffsetOptions) {
+function offsetNode(node, offset: IPosition, options: IOffsetOptions = defaultOffsetOptions) {
   if (Array.isArray(node)) {
     return node.map((n) => offsetNode(n, offset, options));
   }
@@ -207,7 +208,7 @@ function removeNode(target, ast) {
   return ast;
 }
 
-function sizeOfNodes(nodes) {
+function sizeOfNodes(nodes): IPosition {
   let minLine = null;
   let maxLine = null;
   let minCol = null;
@@ -238,7 +239,10 @@ function sizeOfNodes(nodes) {
       }
     }
   }, { recursive: true });
-  return builders.loc(0, 0, maxLine - minLine, maxCol - minCol).end;
+  return {
+    column: maxCol - minCol,
+    line: maxLine - minLine,
+  };
 }
 
 export {

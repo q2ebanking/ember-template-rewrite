@@ -1,18 +1,16 @@
 import * as deepmerge from 'deepmerge';
-import {
-  builders as b,
-} from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import { reduce } from 'underscore';
 import escapeHTML from './utils/escape-html';
 import isSelfClosing from './utils/is-self-closing';
 import {
-  locAppend,
+  posAppend,
+  IPosition,
 } from './utils/location';
 import {
   sortNodes as sort,
 } from './utils/node';
-import whitespaceDiff, {
-  locToWhitespace,
+import {
+  whitespacePosDiff,
 } from './utils/whitespace-diff';
 
 const defaults = { quotes: { mustache: '"' } };
@@ -26,184 +24,196 @@ export interface IPrintOptions {
 
 export default function print(ast, options: IPrintOptions = {}) {
   const optionsWithDefault = merge(defaults, options);
-  const lastLoc = b.loc(1, 0, 1, 0);
-  return build(ast, lastLoc, optionsWithDefault).output.join('');
+  const cursor: IPosition = { line: 1, column: 0 };
+  return build(ast, cursor, optionsWithDefault).output.join('');
 }
 
-function buildEach(asts, lastLoc, options) {
+function buildEach(asts, cursor: IPosition, options) {
   const output = [];
   asts.forEach((node) => {
-    const { output: out, lastLoc: loc } = build(node, lastLoc, options);
+    const { output: out, cursor: eachCursor } = build(node, cursor, options);
     output.push(...out);
-    lastLoc = loc;
+    cursor = eachCursor;
   });
-  return { lastLoc, output };
+  return { cursor, output };
 }
 
-function pathParams(ast, lastLoc, options) {
+function pathParams(ast, cursor, options) {
   const output = [];
   if (ast.name) {
-    const { output: name, lastLoc: nameLoc } = build(ast.name, lastLoc, options);
+    const { output: name, cursor: nameCursor } = build(ast.name, cursor, options);
     output.push(...name);
-    lastLoc = nameLoc || lastLoc;
+    cursor = nameCursor || cursor;
   }
   if (ast.path) {
-    const { output: path, lastLoc: pathLoc } = build(ast.path, lastLoc, options);
+    const { output: path, cursor: pathCursor } = build(ast.path, cursor, options);
     output.push(...path);
-    lastLoc = pathLoc || lastLoc;
+    cursor = pathCursor || cursor;
   }
   if (ast.params) {
-    const { output: params, lastLoc: paramsLoc } = buildEach(ast.params, lastLoc, options);
+    const { output: params, cursor: paramsCursor } = buildEach(ast.params, cursor, options);
     output.push(...params);
-    lastLoc = paramsLoc || lastLoc;
+    cursor = paramsCursor || cursor;
   }
   if (ast.hash) {
-    const { output: hash, lastLoc: hashLoc } = build(ast.hash, lastLoc, options);
+    const { output: hash, cursor: hashCursor } = build(ast.hash, cursor, options);
     output.push(...hash);
-    lastLoc = hashLoc || lastLoc;
+    cursor = hashCursor || cursor;
   }
-  return { output, lastLoc };
+  return { output, cursor };
 }
 
-function blockParams(block, lastLoc, options) {
+function blockParams(block, cursor: IPosition) {
   const params = (block.program && block.program.blockParams) || {};
   if (params.length) {
     const spaced = reduce(params, (acc, p) => acc.concat([p, ' ']), []);
     spaced.splice(-1, 1);
     const length = reduce(spaced, (acc, p) => acc + p.length, 0);
-    lastLoc = locAppend(lastLoc.end, { column: length + 5 });
-    return { lastLoc, output: [' as |', ...spaced, '|'] };
+    cursor = posAppend(cursor, { column: length + 6 });
+    return { cursor, output: [' as |', ...spaced, '|'] };
   }
-  return { lastLoc, output: [] };
+  return { cursor, output: [] };
 }
 
-function openBlock(block, lastLoc, options) {
-  lastLoc = locAppend(lastLoc.start, { column: 3 }); // {{#
-  const { output: path, lastLoc: pathLoc } = pathParams(block, lastLoc, options);
-  lastLoc = pathLoc;
-  const { output: params, lastLoc: paramsLoc } = blockParams(block, lastLoc, options);
-  lastLoc = paramsLoc;
-  lastLoc = locAppend(lastLoc.end, { column: 2 }); // }}
-  return { lastLoc, output: ['{{#', ...path, ...params, '}}'] };
+function openBlock(block, cursor: IPosition, options) {
+  cursor = posAppend(cursor, { column: 3 }); // {{#
+  const { output: path, cursor: pathCursor } = pathParams(block, cursor, options);
+  cursor = pathCursor;
+  const { output: params, cursor: paramsCursor } = blockParams(block, cursor);
+  cursor = paramsCursor;
+  const output = ['{{#', ...path, ...params];
+
+  if (block.program.body.length) {
+    const firstChildStart = block.program.body[0].loc.start;
+    const toBeforeCurlies = {
+      column: firstChildStart.column - 2,
+      line: firstChildStart.line,
+    };
+    const whitespace = whitespacePosDiff(cursor, toBeforeCurlies);
+    output.push(whitespace);
+    cursor = firstChildStart;
+  } else {
+    cursor = posAppend(cursor, { column: 2 }); // }}
+  }
+  output.push('}}');
+
+  return { cursor, output };
 }
 
-function closeBlock(block, lastLoc, options) {
-  lastLoc = locAppend(lastLoc.start, { column: 3 }); // {{/
-  const { output: path } = build(block.path, lastLoc, options);
-  return ['{{/', ...path, '}}'];
+function closeBlock(block, cursor: IPosition, options) {
+  cursor = posAppend(cursor, { column: 3 }); // {{/
+  const { output: path } = build(block.path, cursor, options);
+  cursor = posAppend(cursor, { column: path.join('').length + 3 }); // path}}
+  return { cursor, output: ['{{/', ...path, '}}'] };
 }
 
-function build(ast, lastLoc, options) {
+function build(ast, cursor: IPosition, options) {
   if (!ast) {
-    return { output: [''], lastLoc };
+    return { output: [''], cursor };
   }
   const output = [];
 
-  if (ast.loc && !ast.skipInitialWhitespace) {
-    output.push(whitespaceDiff(lastLoc, ast.loc));
+  if (ast.loc && ast.loc.start) {
+    const whitespace = whitespacePosDiff(cursor, ast.loc.start);
+    cursor = ast.loc.start;
+    output.push(whitespace);
   }
-  if (ast.skipInitialWhitespace) {
-    delete ast.skipInitialWhitespace;
-  }
-  lastLoc = ast.loc || lastLoc;
 
   switch (ast.type) {
     case 'Program': {
-      const chainBlock = ast.chained && ast.body[0];
-      if (chainBlock) {
-        chainBlock.chained = true;
-      }
-      const { output: body, lastLoc: programLoc } = buildEach(ast.body, lastLoc, options);
-      lastLoc = programLoc;
+      const { output: body, cursor: programCursor } = buildEach(ast.body, cursor, options);
+      cursor = programCursor;
       output.push(...body);
       break;
     }
+
     case 'ElementNode': {
       const selfClosing = isSelfClosing(ast.tag);
       const attrNodes = sort(ast.attributes, ast.modifiers, ast.comments);
 
       output.push('<', ast.tag);
-
-      let loc = lastLoc;
-      const tagLength = ast.tag.length;
-      const tagLoc = locAppend(loc.start, { column: tagLength + 1 });
-      loc = tagLoc;
+      cursor = posAppend(cursor, { column: ast.tag.length + 1 });
 
       if (attrNodes.length) {
-        const { output: attrs, lastLoc: attrsLoc } = buildEach(attrNodes, loc, options);
+        const { output: attrs, cursor: attrsCursor } = buildEach(attrNodes, cursor, options);
         output.push(...attrs);
-        loc = attrsLoc;
+        cursor = attrsCursor;
       }
 
       output.push('>');
-      loc = locAppend(loc.end, { column: 1 }); // >
+      cursor = posAppend(cursor, { column: 1 }); // >
       if (!selfClosing) {
-        const { output: children, lastLoc: childLoc } = buildEach(ast.children, loc, options);
+        const { output: children, cursor: childCursor } = buildEach(ast.children, cursor, options);
         output.push(...children);
         output.push('</', ast.tag, '>');
-        loc = locAppend(childLoc.end, { column: 3 + ast.tag.length }); // </tag>
-        lastLoc = loc;
+        cursor = posAppend(childCursor, { column: 3 + ast.tag.length }); // </tag>
       }
       break;
     }
+
     case 'AttrNode': {
       output.push(ast.name, '=');
-      const loc = locAppend(lastLoc.start, { column: ast.name.length + 1 });
-      const { output: value } = build(ast.value, loc, options);
+      cursor = posAppend(cursor, { column: ast.name.length + 1 });
       if (ast.value.type === 'TextNode') {
-        output.push('"', ...value, '"');
-      } else {
-        output.push(...value);
+        ast.value.quotes = true;
       }
+      const { output: valueOutput, cursor: attrCursor } = build(ast.value, cursor, options);
+      cursor = attrCursor;
+      output.push(...valueOutput);
       break;
     }
+
     case 'ConcatStatement': {
       output.push('"');
-      const { output: parts, lastLoc: partsLoc } = buildEach(ast.parts, lastLoc, options);
+      cursor = posAppend(cursor, { column: 1 });
+      const { output: parts, cursor: partsCursor } = buildEach(ast.parts, cursor, options);
       output.push(...parts);
+      cursor = posAppend(cursor, { column: 1 });
       output.push('"');
-      lastLoc = b.loc(partsLoc);
-      lastLoc.end.column += 1; // "
+      cursor = partsCursor;
+      cursor.column += 1; // "
       break;
     }
-    case 'TextNode':
-      output.push(escapeHTML(ast.chars));
+
+    case 'TextNode': {
+      if (ast.quotes) {
+        output.push('"', escapeHTML(ast.chars), '"');
+        cursor = posAppend(cursor, { column: ast.chars.length + 2 });
+      } else {
+        output.push(escapeHTML(ast.chars));
+        cursor = posAppend(cursor, { column: ast.chars.length });
+      }
+      if (ast.loc) {
+        cursor = ast.loc.end;
+      }
       break;
+    }
+
     case 'MustacheStatement': {
+
       const open = ast.escaped ? '{{' : '{{{';
       const close = ast.escaped ? '}}' : '}}}';
-      let loc = locAppend(lastLoc.start, { column: open.length }); // {{ or {{{
-      const { output: out, lastLoc: pathLoc } = pathParams(ast, loc, options);
-      loc = locAppend(pathLoc.end, { column: close.length + 1 }); // }} or }}}
+      cursor = posAppend(cursor, { column: open.length }); // {{ or {{{
 
-      let whitespace = '';
-      if (ast.loc && loc) {
-        const lineDiff = ast.loc.end.line - loc.end.line;
-        let columnDiff = 0;
-        if (lineDiff === 0) {
-          columnDiff = ast.loc.end.column - loc.end.column;
-        } else if (lineDiff > 0) {
-          columnDiff = ast.loc.end.column - 2;
-        }
-        const offset = {
-          end: {
-            column: columnDiff,
-            line: lineDiff,
-          },
-          start: {
-            column: 0,
-            line: 0,
-          },
+      const { output: out, cursor: pathCursor } = pathParams(ast, cursor, options);
+      output.push(open, ...out);
+      cursor = pathCursor;
+
+      if (ast.loc) {
+        const contentEnd = {
+          column: ast.loc.end.column - close.length,
+          line: ast.loc.end.line,
         };
-        whitespace = locToWhitespace(offset);
-        if (whitespace) {
-          loc = ast.loc;
-        }
+
+        const whitespace = whitespacePosDiff(cursor, contentEnd);
+        cursor = ast.loc.end;
+        output.push(whitespace);
       }
-      output.push(open, ...out, whitespace, close);
-      lastLoc = loc;
+      output.push(close);
+
       break;
     }
+
     case 'MustacheCommentStatement': {
       const contentLength = ast.value.length;
       const {
@@ -217,89 +227,138 @@ function build(ast, lastLoc, options) {
       const open = diff > 5 ? '{{!--' : '{{!';
       const close = diff > 5 ? '--}}' : '}}';
       output.push(open, ast.value, close);
+      cursor = posAppend(cursor, { column: open.length + ast.value.length + close.length });
       break;
     }
-    case 'ElementModifierStatement':
-      output.push('{{', ...pathParams(ast, lastLoc, options).output, '}}');
+
+    case 'ElementModifierStatement': {
+      cursor = posAppend(cursor, { column: 2 }); // {{
+      const { output: pathParamsOutput, cursor: pathCursor } = pathParams(ast, cursor, options);
+      output.push('{{', ...pathParamsOutput, '}}');
+      cursor = posAppend(pathCursor, { column: 2 }); // }}
       break;
-    case 'PathExpression':
+    }
+
+    case 'PathExpression': {
       output.push(ast.original);
+      cursor = posAppend(cursor, { column: ast.original.length });
       break;
-    case 'SubExpression':
-      output.push('(', ...pathParams(ast, lastLoc, options).output, ')');
+    }
+
+    case 'SubExpression': {
+      cursor = posAppend(cursor, { column: 1 }); // (
+      const { output: pathOutput, cursor: pathCursor } = pathParams(ast, cursor, options);
+      output.push('(', ...pathOutput, ')');
+      cursor = posAppend(pathCursor, { column: 1 }); // )
       break;
+    }
+
     case 'BooleanLiteral':
-      output.push(ast.value ? 'true' : false);
+      const value = ast.value ? 'true' : 'false';
+      output.push(value);
+      cursor = posAppend(cursor, { column: value.length });
       break;
     case 'BlockStatement': {
-      const { output: open } = openBlock(ast, lastLoc, options);
+      const { output: open, cursor: openCursor } = openBlock(ast, cursor, options);
       output.push(...open);
-      const [firstBodyNode] = ast.program.body;
-      if (firstBodyNode) {
-        firstBodyNode.skipInitialWhitespace = true;
-      }
-      const { output: program } = build(ast.program, lastLoc, options);
-      output.push(...program);
+      cursor = openCursor;
+
+      const { output: body, cursor: programCursor } = buildEach(ast.program.body, cursor, options);
+      cursor = programCursor;
+      output.push(...body);
 
       if (ast.inverse) {
-        if (!ast.inverse.chained) {
-          output.push('{{else}}');
+        const firstNode = ast.inverse.body[0];
+        const onlyOneNode = ast.inverse.body.length === 1;
+
+        if (firstNode.type === 'BlockStatement' && firstNode.path.original === 'if' && onlyOneNode) {
+          const elseBlock = '{{else';
+          const elseBlockClose = '}}';
+          output.push(elseBlock);
+          cursor = posAppend(cursor, { column: elseBlock.length });
+
+          const { output: elseIfOutput, cursor: elseIfCursor } = pathParams(firstNode, cursor, options);
+
+          output.push(...elseIfOutput);
+          output.push(elseBlockClose);
+          cursor = posAppend(elseIfCursor, { column: elseBlockClose.length });
+
+          const { output: inverse, cursor: inverseCursor } = buildEach(firstNode.program.body, cursor, options);
+          output.push(...inverse);
+          cursor = inverseCursor;
+        } else {
+          const elseBlock = '{{else}}';
+          output.push(elseBlock);
+          cursor = posAppend(cursor, { column: elseBlock.length });
+
+          const { output: inverse, cursor: inverseCursor } = buildEach(ast.inverse.body, cursor, options);
+          output.push(...inverse);
+          cursor = inverseCursor;
         }
-        const [firstInverseNode] = ast.inverse.body;
-        ast.inverse.skipInitialWhitespace = true;
-        if (firstInverseNode) {
-          firstInverseNode.skipInitialWhitespace = true;
-        }
-        const {
-          output: inverse,
-        } = build(ast.inverse, ast.inverse.loc, options);
-        output.push(...inverse);
       }
 
-      if (!ast.chained) {
-        output.push(...closeBlock(ast, lastLoc, options));
-      }
+      const { output: closeOutput, cursor: closeCursor } = closeBlock(ast, cursor, options);
+      output.push(...closeOutput);
+      cursor = closeCursor;
+
       break;
     }
     case 'PartialStatement': {
-      const loc = locAppend(lastLoc.start, { column: 3 }); // {{>
-      const { output: params } = pathParams(ast, loc, options);
+      cursor = posAppend(cursor, { column: 3 }); // {{>
+      const { output: params, cursor: partialCursor } = pathParams(ast, cursor, options);
+      cursor = posAppend(partialCursor, { column: 2 }); // }}
       output.push('{{>', ...params, '}}');
       break;
     }
     case 'CommentStatement': {
       output.push('<!--', ast.value, '-->');
-      const { line, column } = lastLoc.end;
       // TODO: multiline comments
-      lastLoc = b.loc(line, column, line, column + ast.value.length + 7);
+      cursor = posAppend(cursor, { column: ast.value.length + 7 });
       break;
     }
     case 'StringLiteral': {
       const quote = options.quotes.mustache;
       output.push(quote, ast.value, quote);
+      cursor = posAppend(cursor, { column: 2 * quote.length + ast.value.length });
       break;
     }
     case 'NumberLiteral':
       output.push(ast.value);
+      cursor = posAppend(cursor, { column: (ast.value + '').length });
       break;
     case 'UndefinedLiteral':
       output.push('undefined');
+      cursor = posAppend(cursor, { column: 'undefined'.length });
       break;
     case 'NullLiteral':
       output.push('null');
+      cursor = posAppend(cursor, { column: 'null'.length });
       break;
     case 'Hash': {
-      const { output: pairs, lastLoc: loc } = buildEach(ast.pairs, lastLoc, options);
+      const { output: pairs, cursor: hashCursor } = buildEach(ast.pairs, cursor, options);
       output.push(...pairs);
-      lastLoc = loc;
+      cursor = hashCursor;
       break;
     }
     case 'HashPair': {
-      const { output: value, lastLoc: loc } = build(ast.value, lastLoc, options);
-      output.push(ast.key, '=', ...value);
-      lastLoc = loc;
+      cursor = posAppend(cursor, { column: ast.key.length + 1 }); // key=
+      const {
+        output: hashPairOut,
+        cursor: hashPairCursor,
+      } = build(ast.value, cursor, options);
+      output.push(ast.key, '=', ...hashPairOut);
+      cursor = posAppend(hashPairCursor, {
+        column: ast.key.length + 1 + hashPairOut.join('').length,
+      });
     }
     // no default
   }
-  return { lastLoc, output };
+
+  if (ast.loc && ast.loc.end) {
+    const whitespace = whitespacePosDiff(cursor, ast.loc.end);
+    cursor = ast.loc.end;
+    output.push(whitespace);
+  }
+
+  return { cursor, output };
 }
