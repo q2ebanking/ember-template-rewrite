@@ -1,5 +1,6 @@
 import { builders } from 'glimmer-engine/dist/node_modules/glimmer-syntax';
 import * as _values from 'object.values';
+import * as _entries from 'object.entries';
 import * as _ from 'underscore';
 import {
   locAdd,
@@ -16,6 +17,7 @@ interface IOffsetOptions {
 }
 
 const values = _values.default || _values;
+const entries = _entries.default || _entries;
 
 const defaultOffsetOptions = {
   both: false,
@@ -82,7 +84,7 @@ function enumerate(node, func, options = {}) {
   if (node.type) {
     func(node, options);
   }
-  Object.entries(node).forEach(([key, val]) => {
+  entries(node).forEach(([key, val]) => {
     if (val && val.type) {
       enumerate(val, func, { parent: node, property: key, isArray: false });
     } else if (Array.isArray(val)) {
