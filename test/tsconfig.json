@@ -3,21 +3,22 @@
     "baseUrl": "./",
     "paths": {
       "ember-template-rewrite/*": [
-        "./lib/*"
+        "./src/*"
       ],
       "test": [
         "./test/*"
       ]
     },
-    "lib": ["es6", "es2017.object"],
+    "target": "es6",
     "module": "commonjs",
-    "moduleResolution": "node",
     "removeComments": true,
-    "preserveConstEnums": true,
-    "sourceMap": true
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "./"
-    ]
+  ]
 }
 

@@ -1,4 +1,4 @@
-import { unescape } from '../lib/whitespace';
+import { unescape } from './whitespace';
 import convertBindAttr from './formulas/convert-bind-attr';
 import convertBindings from './formulas/convert-bindings';
 import convertEachIn from './formulas/convert-each-in';

@@ -1,21 +1,24 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "ember-template-rewrite/*": [
-        "./lib/*"
+        "src/*"
+      ],
+      "test": [
+        "test/*"
       ]
     },
-    "lib": ["es6"],
+    "target": "es6",
     "module": "commonjs",
     "removeComments": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "sourceMap": true
+    "allowSyntheticDefaultImports": true
   },
   "include": [
-    "lib/**/*",
+    "src/**/*",
     "test/**/*"
   ],
   "exclude": [

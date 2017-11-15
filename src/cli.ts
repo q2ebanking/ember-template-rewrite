@@ -1,11 +1,8 @@
-import program from 'commander';
-import pkg from '../package.json';
+import * as program from 'commander';
 import rewrite from './rewrite';
 
-const { version } = pkg;
-
 program
-  .version(version);
+  .version('0.0.4');
 
 program
   .command('convert-bind-attr <path>')
