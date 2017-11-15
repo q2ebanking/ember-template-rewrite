@@ -190,16 +190,46 @@ describe('Unit: print', () => {
     `);
   });
 
-  it('preserves chained else if', () => {
-    printEqual('{{#each foo as |f|}}{{foo}}{{else if bar}}{{bar}}{{/each}}');
+  it.skip('preserves each with as on separate line', () => {
+    printEqual(`
+      {{#each things
+        as |t|}}
+      {{/each}}
+    `);
+  });
+
+  it.skip('preserves chained else unless', () => {
+    printEqual(`
+      {{#if foo}}
+        {{foo}}
+      {{else unless bar}}
+        {{bar}}
+      {{/if}}
+    `);
   });
 
   it('preserves else if', () => {
-    printEqual('{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{/if}}');
+    printEqual(`
+      {{#if foo}}
+        {{foo}}
+      {{else if bar}}
+        {{bar}}
+      {{/if}}
+    `);
   });
 
   it.skip('preserves multiple else ifs', () => {
-    printEqual('{{#if foo}}{{foo}}{{else if bar}}{{bar}}{{else if baz}}{{baz}}{{/if}}');
+    printEqual(`
+      {{#if foo}}
+        {{foo}}
+      {{else if bar}}
+        {{bar}}
+      {{else if baz}}
+        {{baz}}
+      {{else}}
+        nothing
+      {{/if}}
+    `);
   });
 
   it('preserves action position in attributes', () => {
@@ -268,6 +298,18 @@ describe('Unit: print', () => {
 
   it('preserves <br/>', () => {
     printEqual('<br/>');
+  });
+
+  it.skip('preserves single quotes in attributes', () => {
+    printEqual(`<a onclick="window.open(this.href,'_blank');"></a>`);
+  });
+
+  it('preserves escaped double quotes in expression', () => {
+    printEqual('{{concat "background-image:url(\"" img "\")"}}');
+  });
+
+  it.skip('preserves character codes', () => {
+    printEqual('<span>&mdash;</span>');
   });
 
   it.skip('preserves slash in invalid self closing tag', () => {
