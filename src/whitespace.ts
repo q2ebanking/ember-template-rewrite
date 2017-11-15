@@ -1,7 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as peg from 'pegjs';
-import { tags } from './utils/is-self-closing';
+import { tags } from 'ember-template-rewrite/utils/is-self-closing';
+
+/* tslint:disable-next-line:no-var-requires */
+const pegfile = require('raw-loader!ember-template-rewrite/preprocessor.pegjs');
 
 const options = {
   NEWLINE_CHAR: '\uEFFF\n',
@@ -12,13 +13,7 @@ const options = {
   VOID_TAGS: tags,
 };
 
-function read(filePath) {
-  return fs.readFileSync(filePath, { encoding: 'utf8' });
-}
-
 function escape(template) {
-  const pegPath = path.join(__dirname, './preprocessor.pegjs');
-  const pegfile = read(pegPath);
   const preprocessor = peg.generate(pegfile);
   return preprocessor.parse(template, options);
 }

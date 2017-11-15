@@ -4,7 +4,8 @@ import * as path from 'path';
 
 import process from 'ember-template-rewrite/process';
 
-const fixturePath = path.join(__dirname, '../fixtures');
+/* tslint:disable-next-line:no-string-literal */
+const fixturePath: string = global['fixturePath'];
 
 function read({ formula, scenario, file }) {
   const beforePath = path.join(fixturePath, formula, `${scenario}-before`, file);

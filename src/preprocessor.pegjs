@@ -48,7 +48,7 @@ start
 
 VOIDTAG "VOIDTAG"
   = "<" tagname:TAGNAME c:(!"/>" c:. { return c })* "/>"
-  &{ return VOIDS.includes(tagname); }
+  &{ return VOIDS.indexOf(tagname) !== -1; }
   { return "<" + tagname + c.join('') + VOID + ">" }
 
 OPENTAG "OPENTAG"

@@ -1,0 +1,6 @@
+--require ts-node/register
+--require tsconfig-paths/register
+--require test/setup.js
+--webpack-config webpack.config.js
+--recursive
+test/**/*.ts
