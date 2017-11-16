@@ -1,7 +1,9 @@
 const webpack = require('webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 
+const PRODUCTION = process.env.NODE_ENV === 'production';
 const COVERAGE = process.env.NODE_ENV === 'coverage';
 
 const outputDir = path.join(__dirname, 'dist');
@@ -17,7 +19,8 @@ module.exports = {
   },
   output: {
     path: outputDir,
-    filename: 'ember-template-rewrite.js',
+    filename: PRODUCTION ?
+      'ember-template-rewrite.min.js' : 'ember-template-rewrite.js',
     library: '',
     libraryTarget: 'commonjs',
     libraryExport: 'default'
@@ -42,4 +45,7 @@ module.exports = {
   },
   target: 'node',
   externals: [nodeExternals()],
+  plugins: PRODUCTION ? [
+    new UglifyJSPlugin()
+  ] : []
 };
