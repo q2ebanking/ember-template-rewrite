@@ -1,9 +1,8 @@
 // tslint:disable:no-console
-import broccoli from 'broccoli';
-import Funnel from 'broccoli-funnel';
-import * as Filter from 'broccoli-persistent-filter';
+import * as broccoli from 'broccoli';
+import * as Funnel from 'broccoli-funnel';
+import * as Filter from 'broccoli-filter';
 import fse from 'fs-extra';
-import * as path from 'path';
 import processTemplate from './process';
 
 function Rewrite(inputNode, options = {}) {
@@ -14,10 +13,6 @@ function Rewrite(inputNode, options = {}) {
 }
 Rewrite.prototype = Object.create(Filter.prototype);
 Rewrite.prototype.constructor = Rewrite;
-
-Rewrite.prototype.baseDir = function baseDir() {
-  return path.join(__dirname, '../');
-};
 
 Rewrite.prototype.processString = function processString(template, srcFile) {
   console.log(srcFile);

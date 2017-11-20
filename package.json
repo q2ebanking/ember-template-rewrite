@@ -63,7 +63,7 @@
   "dependencies": {
     "broccoli": "^1.1.0",
     "broccoli-funnel": "^1.1.0",
-    "broccoli-persistent-filter": "^1.2.13",
+    "broccoli-filter": "^1.2.4",
     "broccoli-plugin": "^1.3.0",
     "commander": "^2.9.0",
     "deepmerge": "^1.3.1",
