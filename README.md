@@ -1,3 +1,5 @@
+# THIS PROJECT IS ARCHIVED AND NO LONGER MAINTAINED
+
 # ember-template-rewrite [![Build Status][travis-badge]][travis-badge-url] [![Coverage Status][coveralls-badge]][coveralls-badge-url]
 
 A utility for automatically refactoring Ember.js templates.
